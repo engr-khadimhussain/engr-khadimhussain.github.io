@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState, type MouseEvent } from "react";
+import { useCallback, useEffect, useRef, useState, type MouseEvent } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { Award, Briefcase, Calendar, Gauge, Globe } from "lucide-react";
+import { Award, Briefcase, Calendar, CheckCircle2, Gauge, Globe, RotateCcw } from "lucide-react";
 import { profile } from "../models/Profile";
 import { WeldSparks } from "../animation/WeldSparks";
 
@@ -44,13 +44,46 @@ export function Hero() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const statsGridRef = useRef<HTMLDivElement>(null);
   const arcHeadlineLightRef = useRef<HTMLDivElement>(null);
+  const weldRef = useRef<WeldSparks | null>(null);
+  const coolTimerRef = useRef<number | null>(null);
+  const tagTimerRef = useRef<number | null>(null);
+  const lastReentryWeldRef = useRef<number>(0);
+  const leftHeroRef = useRef<HTMLDivElement>(null);
 
   const stats = profile.stats();
   const { person, gallery } = profile;
   const slidePhotos = gallery.slice(0, 4);
   const [activeSlide, setActiveSlide] = useState(0);
   const [lightMode, setLightMode] = useState(false);
+  const [weldState, setWeldState] = useState<"welding" | "cooling" | "accepted">("welding");
   const leadSummary = firstSentence(person.summary);
+
+  const clearWeldTimers = () => {
+    if (coolTimerRef.current !== null) {
+      window.clearTimeout(coolTimerRef.current);
+      coolTimerRef.current = null;
+    }
+    if (tagTimerRef.current !== null) {
+      window.clearTimeout(tagTimerRef.current);
+      tagTimerRef.current = null;
+    }
+  };
+
+  const triggerSingleWeld = useCallback(() => {
+    const weld = weldRef.current;
+    if (!weld) return;
+
+    clearWeldTimers();
+    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (prefersReduced) {
+      setWeldState("accepted");
+      weld.renderStaticComplete();
+      return;
+    }
+
+    setWeldState("welding");
+    weld.start();
+  }, []);
 
   useEffect(() => {
     const host = sectionRef.current;
@@ -86,6 +119,7 @@ export function Hero() {
     if (!sectionEl || !canvasEl) return;
 
     const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
     const weld = new WeldSparks(canvasEl, sectionEl, {
       startXRatio: 0.02,
       endXRatio: 0.98,
@@ -98,8 +132,44 @@ export function Hero() {
         el.style.opacity = active ? "0.24" : "0";
         el.style.background = `radial-gradient(circle 280px at ${xPct}% 32%, ${accent}, transparent 75%)`;
       },
+      onWeldComplete: () => {
+        setWeldState("cooling");
+        coolTimerRef.current = window.setTimeout(() => {
+          setWeldState("accepted");
+        }, 2000);
+      },
     });
-    weld.start();
+    weldRef.current = weld;
+
+    if (prefersReduced) {
+      setWeldState("accepted");
+      weld.renderStaticComplete();
+    } else {
+      weld.start();
+    }
+
+    // Re-weld when returning after hero was scrolled completely out of view (max once per 60s)
+    let wasFullyOut = false;
+    const heroVisObserver = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        if (!entry) return;
+        if (!entry.isIntersecting) {
+          wasFullyOut = true;
+          return;
+        }
+        if (wasFullyOut && entry.isIntersecting) {
+          wasFullyOut = false;
+          const now = Date.now();
+          if (now - lastReentryWeldRef.current >= 60_000) {
+            lastReentryWeldRef.current = now;
+            triggerSingleWeld();
+          }
+        }
+      },
+      { threshold: 0 }
+    );
+    heroVisObserver.observe(sectionEl);
 
     const setFinalStats = () => {
       sectionEl.querySelectorAll<HTMLElement>(".stat-num").forEach((el) => {
@@ -258,12 +328,15 @@ export function Hero() {
     }, sectionRef);
 
     return () => {
+      clearWeldTimers();
       window.clearTimeout(fallbackTimer);
       statsObserver?.disconnect();
+      heroVisObserver.disconnect();
       weld.destroy();
+      weldRef.current = null;
       ctx.revert();
     };
-  }, []);
+  }, [triggerSingleWeld]);
 
   const handleCardMouseMove = (e: MouseEvent<HTMLDivElement>) => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -435,7 +508,7 @@ export function Hero() {
         <polyline className="plant-stroke" points="667,122 667,102 722,102 722,340 742,340" fill="none" stroke="var(--accent)" strokeWidth="1.4" />
       </svg>
 
-      {/* Dedicated Flare Stack Group: hidden on < lg, positioned inside right edge (~4% inset, max ~60% hero height) */}
+      {/* Dedicated Flare Stack Group */}
       <div
         aria-hidden="true"
         className="pointer-events-none hidden lg:block absolute right-[4%] bottom-[76px] z-10 h-[58svh] max-h-[520px] w-28"
@@ -483,11 +556,34 @@ export function Hero() {
         className="pointer-events-none absolute inset-0 z-10 h-full w-full opacity-90 sm:opacity-100"
       />
 
+      {/* Inspection Tag at End of Weld Seam */}
+      <div
+        className={`pointer-events-auto absolute right-4 bottom-56 z-20 hidden sm:flex items-center gap-2 border px-2.5 py-1 font-mono text-[10px] uppercase tracking-widest transition-all duration-700 lg:right-8 ${
+          weldState === "accepted"
+            ? "translate-y-0 border-accent/70 bg-surface/95 text-fg opacity-100"
+            : weldState === "cooling"
+              ? "translate-y-0 border-accent bg-surface/80 text-accent opacity-80"
+              : "pointer-events-none translate-y-1 border-line bg-surface/60 text-muted opacity-0"
+        }`}
+      >
+        <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-accent" />
+        <span>WELD W-01 · ACCEPTED</span>
+        <button
+          type="button"
+          onClick={triggerSingleWeld}
+          aria-label="Re-weld seam"
+          title="Re-weld seam"
+          className="ml-1 inline-flex h-5 w-5 items-center justify-center border border-line bg-bg text-muted transition-colors hover:border-accent hover:text-accent"
+        >
+          <RotateCcw className="h-3 w-3" />
+        </button>
+      </div>
+
       {/* Main Content */}
       <div className="relative z-20 mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 pt-24 pb-10 lg:pt-20">
         <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-12 lg:gap-8">
           {/* Left Column */}
-          <div className="relative lg:col-span-7 space-y-6">
+          <div ref={leftHeroRef} className="relative lg:col-span-7 space-y-6">
             <div
               ref={arcHeadlineLightRef}
               aria-hidden="true"

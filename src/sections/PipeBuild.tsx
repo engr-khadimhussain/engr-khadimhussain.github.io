@@ -33,9 +33,9 @@ export function PipeBuild() {
     >
       <div
         ref={pinHostRef}
-        className="mx-auto flex h-svh max-h-svh w-full max-w-7xl flex-col justify-center px-3 pt-[72px] pb-3 sm:px-6 lg:px-8 lg:pb-6"
+        className="mx-auto flex h-svh max-h-svh w-full max-w-7xl flex-col justify-start px-3 pt-[72px] pb-3 sm:px-6 md:justify-center lg:px-8 lg:pb-6"
       >
-        <div className="flex h-full max-h-full flex-col justify-between border border-line bg-surface p-3 sm:p-5 lg:p-6">
+        <div className="flex h-full max-h-full flex-col justify-start gap-3 overflow-y-auto border border-line bg-surface p-3 pb-28 sm:p-5 sm:pb-28 md:justify-between md:gap-0 md:overflow-visible md:pb-5 lg:p-6 lg:pb-6">
           {/* Compact Header Row: Eyebrow + Title on one line on desktop */}
           <div className="flex flex-col gap-1 border-b border-line pb-2.5 lg:flex-row lg:items-baseline lg:justify-between">
             <div className="flex flex-wrap items-baseline gap-2.5">
@@ -62,7 +62,7 @@ export function PipeBuild() {
           </div>
 
           {/* P&ID Progress Bar */}
-          <div className="my-2 h-1.5 w-full shrink-0 overflow-hidden bg-bg">
+          <div className="h-1.5 w-full shrink-0 overflow-hidden bg-bg md:my-2">
             <div
               className="h-full bg-accent transition-[width] duration-75"
               style={{ width: `${Math.max(4, progressPct)}%` }}
@@ -71,10 +71,10 @@ export function PipeBuild() {
 
           {/* Main Grid: Drawing + Step Panel */}
           <div className="grid min-h-0 flex-1 grid-cols-1 gap-3 md:grid-cols-12 md:items-stretch md:gap-6">
-            {/* Isometric Piping Assembly SVG (capped at 42svh on mobile, fills column height on desktop) */}
-            <div className="flex h-[42svh] max-h-[42svh] w-full items-center justify-center overflow-hidden border border-line bg-bg p-1.5 sm:p-2 md:col-span-8 md:h-full md:max-h-full">
+            {/* Isometric Piping Assembly SVG: aspect-[4/3] on <md, fills height on md+ */}
+            <div className="flex aspect-[4/3] w-full shrink-0 items-center justify-center overflow-hidden border border-line bg-bg p-1 sm:p-2 md:col-span-8 md:aspect-auto md:h-full md:shrink">
               <svg
-                viewBox="65 8 715 292"
+                viewBox="95 10 675 288"
                 preserveAspectRatio="xMidYMid meet"
                 className="h-full w-full select-none"
                 role="img"
@@ -82,11 +82,11 @@ export function PipeBuild() {
               >
                 {/* Steel Pipe Rack & Ground */}
                 <g className="will-change-transform">
-                  <line x1="75" y1="292" x2="770" y2="292" stroke="var(--line)" strokeWidth="2" />
+                  <line x1="100" y1="292" x2="765" y2="292" stroke="var(--line)" strokeWidth="2" />
                   <line x1="160" y1="226" x2="160" y2="292" stroke="var(--line)" strokeWidth="3.5" />
                   <line x1="420" y1="226" x2="420" y2="292" stroke="var(--line)" strokeWidth="3.5" />
                   <line x1="660" y1="226" x2="660" y2="292" stroke="var(--line)" strokeWidth="3.5" />
-                  <line x1="105" y1="226" x2="735" y2="226" stroke="var(--line)" strokeWidth="4" />
+                  <line x1="105" y1="226" x2="755" y2="226" stroke="var(--line)" strokeWidth="4" />
                 </g>
 
                 {/* Support Shoe 1 */}
@@ -103,7 +103,7 @@ export function PipeBuild() {
                   <line x1="431" y1="205" x2="431" y2="226" stroke="var(--accent)" strokeWidth="1.5" />
                 </g>
 
-                {/* Spool A (bottom at y=205 rests on shoes; centerline y=187) */}
+                {/* Spool A */}
                 <g className="part-spool-a will-change-transform">
                   <line x1="115" y1="187" x2="265" y2="187" stroke="var(--line)" strokeWidth="36" strokeLinecap="butt" />
                   <line x1="115" y1="171" x2="265" y2="171" stroke="var(--primary2)" strokeWidth="2.4" opacity="0.65" />
@@ -164,18 +164,18 @@ export function PipeBuild() {
                 </g>
 
                 {/* Rotating Gate Valve Handwheel */}
-                <g className="valve-wheel will-change-transform" style={{ transformOrigin: "522px 40px" }}>
+                <g className="valve-wheel will-change-transform">
                   <ellipse cx="522" cy="40" rx="26" ry="8" fill="none" stroke="var(--accent)" strokeWidth="2.5" />
                   <line x1="496" y1="40" x2="548" y2="40" stroke="var(--accent)" strokeWidth="2" />
                   <line x1="522" y1="32" x2="522" y2="48" stroke="var(--accent)" strokeWidth="2" />
                   <circle cx="522" cy="40" r="3.8" fill="var(--accent)" />
                 </g>
 
-                {/* Spool B (Right header run) */}
+                {/* Spool B */}
                 <g className="part-spool-b will-change-transform">
-                  <line x1="554" y1="78" x2="745" y2="78" stroke="var(--line)" strokeWidth="32" />
-                  <line x1="554" y1="64" x2="745" y2="64" stroke="var(--primary2)" strokeWidth="2.2" opacity="0.65" />
-                  <line x1="554" y1="92" x2="745" y2="92" stroke="var(--bg)" strokeWidth="2.2" opacity="0.55" />
+                  <line x1="554" y1="78" x2="755" y2="78" stroke="var(--line)" strokeWidth="32" />
+                  <line x1="554" y1="64" x2="755" y2="64" stroke="var(--primary2)" strokeWidth="2.2" opacity="0.65" />
+                  <line x1="554" y1="92" x2="755" y2="92" stroke="var(--bg)" strokeWidth="2.2" opacity="0.55" />
                 </g>
 
                 {/* Bolts on Flange Pairs */}
@@ -215,13 +215,13 @@ export function PipeBuild() {
                     strokeLinecap="round"
                   />
 
-                  <g className="gauge-needle-arm will-change-transform" style={{ transformOrigin: "366px 34px" }}>
+                  <g className="gauge-needle-arm will-change-transform">
                     <line x1="366" y1="38" x2="366" y2="17" stroke="var(--accent)" strokeWidth="2.5" strokeLinecap="round" />
                   </g>
                   <circle cx="366" cy="34" r="3.5" fill="var(--fg)" stroke="var(--accent)" strokeWidth="1.4" />
                 </g>
 
-                {/* Weld Beads & Sparks at 3 Joints */}
+                {/* Weld Beads & Sparks at 3 Joints (hidden via autoAlpha until Stage 03) */}
                 <g className="will-change-transform">
                   <line className="weld-bead" x1="271" y1="164" x2="271" y2="210" stroke="var(--accent)" strokeWidth="3.8" />
                   <line className="weld-bead" x1="340" y1="101" x2="392" y2="101" stroke="var(--accent)" strokeWidth="3.8" />
@@ -235,7 +235,7 @@ export function PipeBuild() {
                   <circle className="weld-spark" cx="565" cy="56" r="2.5" fill="var(--fg)" />
                 </g>
 
-                {/* NDT Scan Beams & Accent Check Marks */}
+                {/* NDT Scan Beams & Accent Check Marks (hidden via autoAlpha until Stage 04) */}
                 <g className="will-change-transform">
                   <line className="ndt-beam" x1="262" y1="187" x2="280" y2="187" stroke="var(--primary2)" strokeWidth="3" />
                   <line className="ndt-beam" x1="355" y1="92" x2="377" y2="92" stroke="var(--primary2)" strokeWidth="3" />
@@ -246,11 +246,11 @@ export function PipeBuild() {
                   <path className="ndt-pass" d="M 548 48 L 554 54 L 565 42" fill="none" stroke="var(--accent)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
                 </g>
 
-                {/* Hydrotest Flowing Water Path */}
+                {/* Hydrotest Flowing Water Path (hidden via autoAlpha until Stage 05) */}
                 <g className="will-change-transform">
                   <path
                     className="hydro-flow"
-                    d="M 118 187 L 332 187 Q 366 187 366 153 L 366 78 L 742 78"
+                    d="M 118 187 L 332 187 Q 366 187 366 153 L 366 78 L 752 78"
                     fill="none"
                     stroke="var(--accent)"
                     strokeWidth="4.5"
@@ -259,7 +259,7 @@ export function PipeBuild() {
                 </g>
 
                 {/* HYDROTEST PASSED Stamp */}
-                <g className="hydro-stamp will-change-transform" transform="translate(570, 124)">
+                <g className="hydro-stamp will-change-transform" transform="translate(565, 124)">
                   <rect x="0" y="0" width="196" height="30" fill="var(--bg)" stroke="var(--accent)" strokeWidth="2.2" />
                   <text
                     x="98"
@@ -273,7 +273,7 @@ export function PipeBuild() {
                 </g>
 
                 {/* Line Tag 6"-P-1001-A1A */}
-                <g className="handover-tag will-change-transform" transform="translate(570, 164)">
+                <g className="handover-tag will-change-transform" transform="translate(565, 164)">
                   <rect x="0" y="0" width="196" height="28" fill="var(--surface)" stroke="var(--line)" strokeWidth="1.6" />
                   <text
                     x="98"
@@ -288,7 +288,7 @@ export function PipeBuild() {
               </svg>
             </div>
 
-            {/* Step Panel: Compact on <768px with 6 numbered dots; full list on md+ */}
+            {/* Step Panel */}
             <div className="flex flex-col justify-between gap-2.5 md:col-span-4 md:gap-4">
               <div className="border border-line bg-bg p-3 sm:p-4">
                 <div className="font-mono text-[10px] uppercase tracking-widest text-accent sm:text-xs">

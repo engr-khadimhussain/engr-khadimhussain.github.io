@@ -17,15 +17,15 @@ export function Gallery() {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const photos = profile.gallery as readonly GalleryItemWithFeatured[];
 
-  const featuredEntries = photos
+  const featuredRowEntries = photos
     .map((item, idx) => ({ item, index: idx }))
-    .filter(({ item, index }) => Boolean(item.featured) || index < 3)
+    .filter(({ item }) => Boolean(item.featured))
     .slice(0, 3);
 
-  const featuredIndexSet = new Set(featuredEntries.map(({ index }) => index));
+  const featuredRowIndexSet = new Set(featuredRowEntries.map(({ index }) => index));
   const restEntries = photos
     .map((item, idx) => ({ item, index: idx }))
-    .filter(({ index }) => !featuredIndexSet.has(index));
+    .filter(({ index }) => !featuredRowIndexSet.has(index));
 
   useEffect(() => {
     const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -68,7 +68,7 @@ export function Gallery() {
     idx: number,
     isFeaturedRow = false
   ) => {
-    const featured = Boolean(item.featured) || isFeaturedRow;
+    const isFeatured = Boolean(item.featured);
 
     return (
       <button
@@ -76,7 +76,7 @@ export function Gallery() {
         type="button"
         onClick={() => setActiveIndex(idx)}
         className={`gallery-tile group relative flex h-full w-full flex-col overflow-hidden border bg-surface text-left opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
-          featured ? "border-accent" : "border-line"
+          isFeatured ? "border-accent" : "border-line"
         }`}
       >
         <div
@@ -90,20 +90,20 @@ export function Gallery() {
             loading="lazy"
             decoding="async"
             className={`h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105 group-focus-visible:scale-105 ${
-              isFeaturedRow
+              isFeatured
                 ? "object-top"
                 : "object-[center_30%] grayscale contrast-115 group-hover:grayscale-0 group-focus-visible:grayscale-0"
             }`}
           />
 
-          {!featured && (
+          {!isFeatured && (
             <div
               aria-hidden="true"
               className="pointer-events-none absolute inset-0 bg-accent/15 mix-blend-color transition-opacity duration-500 group-hover:opacity-0 group-focus-visible:opacity-0"
             />
           )}
 
-          {featured && (
+          {isFeatured && (
             <div className="pointer-events-none absolute top-2.5 left-2.5 z-10 inline-flex items-center gap-1.5 bg-accent px-2.5 py-1 font-mono text-[10px] font-semibold uppercase tracking-wider text-on-accent shadow-xs">
               <UserCheck className="h-3 w-3 shrink-0" />
               <span>KHADIM HUSSAIN</span>
@@ -131,14 +131,14 @@ export function Gallery() {
   return (
     <Section id="onsite" eyebrow="FROM THE FIELD" title="On Site">
       <div ref={sectionContainerRef} className="space-y-6">
-        {/* Featured Row on lg (3 equal columns, uniform height); flows naturally first on mobile */}
-        {featuredEntries.length > 0 && (
+        {/* Featured Row: first 3 featured items */}
+        {featuredRowEntries.length > 0 && (
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:items-stretch">
-            {featuredEntries.map(({ item, index }) => renderTile(item, index, true))}
+            {featuredRowEntries.map(({ item, index }) => renderTile(item, index, true))}
           </div>
         )}
 
-        {/* Uniform Grid for Remaining Site Photographs */}
+        {/* Regular Grid: remaining items (any extra featured items still show full colour + badge) */}
         {restEntries.length > 0 && (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:items-stretch">
             {restEntries.map(({ item, index }) => renderTile(item, index, false))}

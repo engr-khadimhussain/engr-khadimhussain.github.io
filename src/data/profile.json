@@ -559,17 +559,17 @@
     },
     {
       "src": "/img/site/site-08.webp",
-      "caption": "Mobile crane lift on the plant site",
+      "caption": "Khadim on site during a mobile crane lift",
       "place": "Site",
       "tag": "Erection",
-      "featured": false
+      "featured": true
     },
     {
       "src": "/img/site/site-10.webp",
-      "caption": "With the site crew during erection",
+      "caption": "Khadim with his site crew during erection",
       "place": "Site",
       "tag": "Team",
-      "featured": false
+      "featured": true
     },
     {
       "src": "/img/site/site-01.webp",

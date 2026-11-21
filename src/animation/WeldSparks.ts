@@ -1,3 +1,11 @@
+export interface WeldSparksOptions {
+  startXRatio?: number;
+  endXRatio?: number;
+  yRatio?: number;
+  onArcPosition?: (normX: number, normY: number, active: boolean) => void;
+  onWeldComplete?: () => void;
+}
+
 interface SparkParticle {
   x: number;
   y: number;
@@ -6,318 +14,256 @@ interface SparkParticle {
   life: number;
   maxLife: number;
   size: number;
-  streakScale: number;
   hot: boolean;
-}
-
-interface BeadPoint {
-  x: number;
-  y: number;
-  age: number;
-}
-
-export interface WeldSeamConfig {
-  startXRatio: number;
-  endXRatio: number;
-  yRatio: number;
-  onArcPosition?: (normX: number, normY: number, active: boolean) => void;
 }
 
 export class WeldSparks {
   private readonly canvas: HTMLCanvasElement;
-  private readonly ctx: CanvasRenderingContext2D;
   private readonly host: HTMLElement;
-  private readonly seam: WeldSeamConfig;
-  private readonly reducedMotion: boolean;
+  private readonly ctx: CanvasRenderingContext2D | null;
+  private readonly startXRatio: number;
+  private readonly endXRatio: number;
+  private readonly yRatio: number;
+  private readonly onArcPosition?: (normX: number, normY: number, active: boolean) => void;
+  private readonly onWeldComplete?: () => void;
 
-  private sparks: SparkParticle[] = [];
-  private bead: BeadPoint[] = [];
   private rafId: number | null = null;
-  private lastTime = 0;
-  private progress = 0;
-  private isVisible = true;
-  private isTabHidden = false;
+  private resizeObserver: ResizeObserver | null = null;
   private width = 0;
   private height = 0;
   private dpr = 1;
-  private accentColor = "rgb(245, 158, 11)";
-  private lineColor = "rgb(148, 163, 184)";
 
-  private resizeObserver: ResizeObserver | null = null;
-  private intersectionObserver: IntersectionObserver | null = null;
+  private sparks: SparkParticle[] = [];
+  private running = false;
+  private startTime = 0;
+  private readonly weldDurationMs = 4500;
+  private readonly burstTailMs = 450;
+  private burstSpawned = false;
+  private completedFired = false;
 
-  constructor(
-    canvas: HTMLCanvasElement,
-    host: HTMLElement,
-    seam: WeldSeamConfig = { startXRatio: 0.02, endXRatio: 0.98, yRatio: 0.78 }
-  ) {
-    const context = canvas.getContext("2d");
-    if (!context) {
-      throw new Error("2D canvas context unavailable");
-    }
+  private accentColor = "#f97316";
+  private hotColor = "#fff7ed";
+  private lineColor = "#94a3b8";
+
+  constructor(canvas: HTMLCanvasElement, host: HTMLElement, options: WeldSparksOptions = {}) {
     this.canvas = canvas;
-    this.ctx = context;
     this.host = host;
-    this.seam = seam;
-    this.reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    this.ctx = canvas.getContext("2d");
+    this.startXRatio = options.startXRatio ?? 0.02;
+    this.endXRatio = options.endXRatio ?? 0.98;
+    this.yRatio = options.yRatio ?? 0.79;
+    this.onArcPosition = options.onArcPosition;
+    this.onWeldComplete = options.onWeldComplete;
   }
 
-  private readThemeColors(): void {
+  private syncThemeColors(): void {
     const styles = getComputedStyle(this.host);
     const accent = styles.getPropertyValue("--accent").trim();
+    const primary2 = styles.getPropertyValue("--primary2").trim();
     const line = styles.getPropertyValue("--line").trim();
     if (accent) this.accentColor = accent;
+    if (primary2) this.hotColor = primary2;
     if (line) this.lineColor = line;
   }
 
-  private updateSize(): void {
-    const rect = this.canvas.getBoundingClientRect();
-    this.width = Math.max(1, rect.width);
-    this.height = Math.max(1, rect.height);
+  private resize = (): void => {
+    const rect = this.host.getBoundingClientRect();
+    this.width = Math.max(1, Math.floor(rect.width));
+    this.height = Math.max(1, Math.floor(rect.height));
     this.dpr = Math.min(window.devicePixelRatio || 1, 2);
 
-    this.canvas.width = Math.round(this.width * this.dpr);
-    this.canvas.height = Math.round(this.height * this.dpr);
-    this.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
-  }
+    this.canvas.width = Math.floor(this.width * this.dpr);
+    this.canvas.height = Math.floor(this.height * this.dpr);
+    this.canvas.style.width = `${this.width}px`;
+    this.canvas.style.height = `${this.height}px`;
 
-  private getSeamCoords(t: number): { x: number; y: number } {
-    const x0 = this.width * this.seam.startXRatio;
-    const x1 = this.width * this.seam.endXRatio;
-    const baseY = this.height * this.seam.yRatio;
-    const x = x0 + (x1 - x0) * t;
-    const y = baseY + Math.sin(t * Math.PI * 3) * 2.5;
-    return { x, y };
-  }
+    if (this.ctx) {
+      this.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+    }
+  };
 
-  private emitSparks(x: number, y: number, count: number): void {
-    for (let i = 0; i < count; i++) {
-      if (this.sparks.length > 220) break;
-      const isLongStreak = Math.random() < 0.35;
-      const angle = -Math.PI * 0.5 + (Math.random() - 0.5) * 2.65;
-      const speed = isLongStreak ? 210 + Math.random() * 210 : 85 + Math.random() * 220;
-      const maxLife = isLongStreak ? 0.36 + Math.random() * 0.42 : 0.25 + Math.random() * 0.48;
+  private spawnSparks(x: number, y: number, count: number, burst = false): void {
+    for (let i = 0; i < count; i += 1) {
+      const angle = burst
+        ? -Math.PI * 0.92 + Math.random() * Math.PI * 0.84
+        : -Math.PI * 0.85 + Math.random() * Math.PI * 0.7;
+      const speed = burst
+        ? 45 + Math.random() * 145
+        : 28 + Math.random() * 95;
+      const maxLife = burst
+        ? 0.28 + Math.random() * 0.32
+        : 0.22 + Math.random() * 0.28;
+
       this.sparks.push({
         x,
         y,
         vx: Math.cos(angle) * speed,
-        vy: Math.sin(angle) * speed - 45,
+        vy: Math.sin(angle) * speed - (burst ? 25 : 10),
         life: 0,
         maxLife,
-        size: isLongStreak ? 1.5 + Math.random() * 1.4 : 1.1 + Math.random() * 1.8,
-        streakScale: isLongStreak ? 0.045 : 0.022,
+        size: burst ? 1.5 + Math.random() * 2.2 : 1.1 + Math.random() * 1.7,
         hot: Math.random() > 0.35,
       });
     }
   }
 
-  private drawStaticFinishedWeld(): void {
-    this.readThemeColors();
-    this.updateSize();
+  private drawFinishedSeam(): void {
+    if (!this.ctx || this.width <= 0 || this.height <= 0) return;
+    const x1 = this.width * this.startXRatio;
+    const x2 = this.width * this.endXRatio;
+    const y = this.height * this.yRatio;
+
     this.ctx.clearRect(0, 0, this.width, this.height);
-
-    const x0 = this.width * this.seam.startXRatio;
-    const x1 = this.width * this.seam.endXRatio;
-    const y = this.height * this.seam.yRatio;
-
     this.ctx.save();
+    this.ctx.beginPath();
+    this.ctx.moveTo(x1, y);
+    this.ctx.lineTo(x2, y);
     this.ctx.strokeStyle = this.lineColor;
-    this.ctx.lineWidth = 2.5;
-    this.ctx.beginPath();
-    this.ctx.moveTo(x0, y);
-    this.ctx.lineTo(x1, y);
-    this.ctx.stroke();
-
-    this.ctx.strokeStyle = this.accentColor;
-    this.ctx.lineWidth = 1.6;
-    this.ctx.setLineDash([6, 4]);
-    this.ctx.beginPath();
-    this.ctx.moveTo(x0 + 8, y);
-    this.ctx.lineTo(x1 - 8, y);
+    this.ctx.lineWidth = 3.5;
+    this.ctx.lineCap = "round";
     this.ctx.stroke();
     this.ctx.restore();
-
-    this.seam.onArcPosition?.(0.5, this.seam.yRatio, false);
   }
 
-  private step = (now: number): void => {
-    this.rafId = null;
-    if (!this.isVisible || this.isTabHidden || this.reducedMotion) return;
+  public renderStaticComplete(): void {
+    this.stop();
+    this.syncThemeColors();
+    this.resize();
+    this.drawFinishedSeam();
+    this.onArcPosition?.(1, this.yRatio, false);
+  }
 
-    if (!this.lastTime) this.lastTime = now;
-    const dt = Math.min((now - this.lastTime) / 1000, 0.05);
-    this.lastTime = now;
+  public start(): void {
+    this.stop();
+    this.syncThemeColors();
+    this.resize();
 
-    this.readThemeColors();
-
-    // Traverse full seam left-to-right, then restart from left while old bead fades out
-    const speed = 0.16;
-    this.progress += speed * dt;
-    if (this.progress > 1) {
-      this.progress %= 1;
+    if (!this.resizeObserver) {
+      this.resizeObserver = new ResizeObserver(this.resize);
+      this.resizeObserver.observe(this.host);
     }
 
-    const weldPos = this.getSeamCoords(this.progress);
-    this.bead.push({ x: weldPos.x, y: weldPos.y, age: 0 });
-    if (this.bead.length > 140) {
-      this.bead.shift();
-    }
+    if (!this.ctx) return;
 
-    this.emitSparks(weldPos.x, weldPos.y, 4 + Math.floor(Math.random() * 4));
+    this.sparks = [];
+    this.startTime = performance.now();
+    this.burstSpawned = false;
+    this.completedFired = false;
+    this.running = true;
 
-    // Age cooling weld bead so old pass fades out cleanly
-    for (let i = this.bead.length - 1; i >= 0; i--) {
-      this.bead[i].age += dt;
-      if (this.bead[i].age > 2.2) {
-        this.bead.splice(i, 1);
-      }
-    }
+    const step = (now: number) => {
+      if (!this.running || !this.ctx) return;
 
-    // Update sparks with gravity and bounce off pipe seam
-    const gravity = 580;
-    const pipeY = this.height * this.seam.yRatio;
-    for (let i = this.sparks.length - 1; i >= 0; i--) {
-      const s = this.sparks[i];
-      s.life += dt;
-      if (s.life >= s.maxLife) {
-        this.sparks.splice(i, 1);
-        continue;
-      }
+      const elapsed = now - this.startTime;
+      const weldProgress = Math.min(1, elapsed / this.weldDurationMs);
+      const isWelding = weldProgress < 1;
 
-      const prevY = s.y;
-      s.vy += gravity * dt;
-      s.x += s.vx * dt;
-      s.y += s.vy * dt;
+      const x1 = this.width * this.startXRatio;
+      const x2 = this.width * this.endXRatio;
+      const y = this.height * this.yRatio;
+      const arcX = x1 + (x2 - x1) * weldProgress;
 
-      if (prevY <= pipeY && s.y >= pipeY && s.vy > 0) {
-        s.y = pipeY;
-        s.vy = -s.vy * 0.45;
-        s.vx *= 0.84;
-      }
-    }
+      this.ctx.clearRect(0, 0, this.width, this.height);
 
-    this.render(weldPos.x, weldPos.y);
-    this.seam.onArcPosition?.(weldPos.x / this.width, weldPos.y / this.height, true);
-    this.rafId = requestAnimationFrame(this.step);
-  };
-
-  private render(torchX: number, torchY: number): void {
-    this.ctx.clearRect(0, 0, this.width, this.height);
-
-    // 1. Cooling Weld Bead
-    if (this.bead.length > 1) {
-      this.ctx.save();
-      this.ctx.lineCap = "round";
-      for (let i = 1; i < this.bead.length; i++) {
-        const p0 = this.bead[i - 1];
-        const p1 = this.bead[i];
-        // Skip segment if wrapped across seam restart
-        if (Math.abs(p1.x - p0.x) > this.width * 0.25) continue;
-
-        const ratio = Math.min(1, p1.age / 2.2);
+      // Completed weld bead up to current arc position
+      if (arcX > x1 + 1) {
+        this.ctx.save();
         this.ctx.beginPath();
-        this.ctx.moveTo(p0.x, p0.y);
-        this.ctx.lineTo(p1.x, p1.y);
-        this.ctx.lineWidth = 3.6 - ratio * 1.6;
-        this.ctx.globalAlpha = Math.max(0, (1 - ratio) * 0.92);
-        this.ctx.strokeStyle =
-          ratio < 0.22 ? "#ffffff" : ratio < 0.65 ? this.accentColor : this.lineColor;
+        this.ctx.moveTo(x1, y);
+        this.ctx.lineTo(arcX, y);
+        this.ctx.strokeStyle = isWelding ? this.accentColor : this.lineColor;
+        this.ctx.lineWidth = 3.5;
+        this.ctx.lineCap = "round";
         this.ctx.stroke();
+        this.ctx.restore();
       }
-      this.ctx.restore();
-    }
 
-    // 2. Additive Soft Pipe Bloom, Welding Arc & Streaks
-    this.ctx.save();
-    this.ctx.globalCompositeOperation = "lighter";
+      if (isWelding) {
+        this.onArcPosition?.(arcX / Math.max(1, this.width), this.yRatio, true);
 
-    const bloomRadius = 64 + Math.random() * 18;
-    const bloom = this.ctx.createRadialGradient(torchX, torchY, 2, torchX, torchY, bloomRadius);
-    bloom.addColorStop(0, "rgba(255, 255, 255, 0.95)");
-    bloom.addColorStop(0.25, this.accentColor);
-    bloom.addColorStop(0.6, this.accentColor);
-    bloom.addColorStop(1, "rgba(255, 255, 255, 0)");
+        // Glowing arc flash at torch tip
+        this.ctx.save();
+        const glow = this.ctx.createRadialGradient(arcX, y, 1, arcX, y, 22);
+        glow.addColorStop(0, this.hotColor);
+        glow.addColorStop(0.45, this.accentColor);
+        glow.addColorStop(1, "transparent");
+        this.ctx.fillStyle = glow;
+        this.ctx.beginPath();
+        this.ctx.arc(arcX, y, 22, 0, Math.PI * 2);
+        this.ctx.fill();
 
-    this.ctx.globalAlpha = 0.72;
-    this.ctx.fillStyle = bloom;
-    this.ctx.beginPath();
-    this.ctx.arc(torchX, torchY, bloomRadius, 0, Math.PI * 2);
-    this.ctx.fill();
+        this.ctx.fillStyle = this.hotColor;
+        this.ctx.beginPath();
+        this.ctx.arc(arcX, y, 3.5, 0, Math.PI * 2);
+        this.ctx.fill();
+        this.ctx.restore();
 
-    // Hot white-gold core
-    this.ctx.globalAlpha = 1;
-    this.ctx.fillStyle = "#ffffff";
-    this.ctx.beginPath();
-    this.ctx.arc(torchX, torchY, 3.4, 0, Math.PI * 2);
-    this.ctx.fill();
-
-    // Sparks & longer streaks
-    for (const s of this.sparks) {
-      const alpha = Math.max(0, 1 - s.life / s.maxLife);
-      this.ctx.globalAlpha = alpha;
-      this.ctx.strokeStyle = s.hot ? "#ffffff" : this.accentColor;
-      this.ctx.lineWidth = s.size;
-      this.ctx.beginPath();
-      this.ctx.moveTo(s.x, s.y);
-      this.ctx.lineTo(s.x - s.vx * s.streakScale, s.y - s.vy * s.streakScale);
-      this.ctx.stroke();
-    }
-
-    this.ctx.restore();
-  }
-
-  private handleVisibilityChange = (): void => {
-    this.isTabHidden = document.hidden;
-    if (!this.isTabHidden && this.isVisible && !this.reducedMotion && this.rafId === null) {
-      this.lastTime = performance.now();
-      this.rafId = requestAnimationFrame(this.step);
-    }
-  };
-
-  start(): void {
-    if (this.reducedMotion) {
-      this.drawStaticFinishedWeld();
-      this.resizeObserver = new ResizeObserver(() => this.drawStaticFinishedWeld());
-      this.resizeObserver.observe(this.canvas);
-      return;
-    }
-
-    this.updateSize();
-    this.readThemeColors();
-
-    this.resizeObserver = new ResizeObserver(() => {
-      this.updateSize();
-    });
-    this.resizeObserver.observe(this.canvas);
-
-    this.intersectionObserver = new IntersectionObserver(
-      (entries) => {
-        const entry = entries[0];
-        this.isVisible = Boolean(entry && entry.isIntersecting);
-        if (this.isVisible && !this.isTabHidden && this.rafId === null) {
-          this.lastTime = performance.now();
-          this.rafId = requestAnimationFrame(this.step);
-        } else if (!this.isVisible && this.rafId !== null) {
-          cancelAnimationFrame(this.rafId);
-          this.rafId = null;
+        if (Math.random() < 0.72) {
+          this.spawnSparks(arcX, y, 2, false);
         }
-      },
-      { threshold: 0.05 }
-    );
-    this.intersectionObserver.observe(this.host);
+      } else {
+        this.onArcPosition?.(1, this.yRatio, false);
 
-    document.addEventListener("visibilitychange", this.handleVisibilityChange);
-    this.lastTime = performance.now();
-    this.rafId = requestAnimationFrame(this.step);
+        if (!this.burstSpawned) {
+          this.burstSpawned = true;
+          this.spawnSparks(x2, y, 18, true);
+        }
+
+        if (!this.completedFired) {
+          this.completedFired = true;
+          this.onWeldComplete?.();
+        }
+      }
+
+      // Update & draw sparks only while welding or during short final burst tail
+      const dt = 1 / 60;
+      const gravity = 260;
+      for (let i = this.sparks.length - 1; i >= 0; i -= 1) {
+        const p = this.sparks[i];
+        p.life += dt;
+        if (p.life >= p.maxLife) {
+          this.sparks.splice(i, 1);
+          continue;
+        }
+        p.vy += gravity * dt;
+        p.x += p.vx * dt;
+        p.y += p.vy * dt;
+
+        const alpha = Math.max(0, 1 - p.life / p.maxLife);
+        this.ctx.save();
+        this.ctx.globalAlpha = alpha;
+        this.ctx.fillStyle = p.hot ? this.hotColor : this.accentColor;
+        this.ctx.beginPath();
+        this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        this.ctx.fill();
+        this.ctx.restore();
+      }
+
+      if (isWelding || elapsed < this.weldDurationMs + this.burstTailMs || this.sparks.length > 0) {
+        this.rafId = window.requestAnimationFrame(step);
+      } else {
+        this.drawFinishedSeam();
+        this.running = false;
+        this.rafId = null;
+      }
+    };
+
+    this.rafId = window.requestAnimationFrame(step);
   }
 
-  destroy(): void {
+  public stop(): void {
+    this.running = false;
     if (this.rafId !== null) {
-      cancelAnimationFrame(this.rafId);
+      window.cancelAnimationFrame(this.rafId);
       this.rafId = null;
     }
-    this.resizeObserver?.disconnect();
-    this.intersectionObserver?.disconnect();
-    document.removeEventListener("visibilitychange", this.handleVisibilityChange);
+  }
+
+  public destroy(): void {
+    this.stop();
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect();
+      this.resizeObserver = null;
+    }
   }
 }
