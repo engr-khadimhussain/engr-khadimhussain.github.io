@@ -516,58 +516,67 @@
   ],
   "gallery": [
     {
+      "src": "/img/site/site-03.webp",
+      "caption": "Khadim on a steel structure, supervising erection works at height",
+      "place": "UAE",
+      "tag": "Erection",
+      "featured": true
+    },
+    {
+      "src": "/img/site/site-07.webp",
+      "caption": "Khadim in the OGASCO site office, planning and reporting",
+      "place": "UAE",
+      "tag": "Planning",
+      "featured": true
+    },
+    {
+      "src": "/img/site/site-11.webp",
+      "caption": "Khadim with the Doosan Babcock & Black Cat turnaround team, Qatar",
+      "place": "Qatar",
+      "tag": "Turnaround",
+      "featured": true
+    },
+    {
       "src": "/img/site/site-04.webp",
       "caption": "Project team at the Shams 1 solar thermal plant site",
       "place": "UAE",
-      "tag": "Team"
+      "tag": "Team",
+      "featured": false
     },
     {
       "src": "/img/site/site-05.webp",
       "caption": "Toolbox talk in the fabrication workshop",
       "place": "UAE",
-      "tag": "Safety"
-    },
-    {
-      "src": "/img/site/site-03.webp",
-      "caption": "Erection works at height on a steel structure",
-      "place": "UAE",
-      "tag": "Erection"
+      "tag": "Safety",
+      "featured": false
     },
     {
       "src": "/img/site/site-06.webp",
       "caption": "Morning safety briefing before the shift",
       "place": "UAE",
-      "tag": "Safety"
+      "tag": "Safety",
+      "featured": false
     },
     {
       "src": "/img/site/site-08.webp",
       "caption": "Mobile crane lift on the plant site",
       "place": "Site",
-      "tag": "Erection"
+      "tag": "Erection",
+      "featured": false
     },
     {
       "src": "/img/site/site-10.webp",
       "caption": "With the site crew during erection",
       "place": "Site",
-      "tag": "Team"
-    },
-    {
-      "src": "/img/site/site-07.webp",
-      "caption": "Site office planning and reporting",
-      "place": "UAE",
-      "tag": "Planning"
-    },
-    {
-      "src": "/img/site/site-11.webp",
-      "caption": "Turnaround team, Qatar",
-      "place": "Qatar",
-      "tag": "Turnaround"
+      "tag": "Team",
+      "featured": false
     },
     {
       "src": "/img/site/site-01.webp",
       "caption": "PPE on, ready for the shift",
       "place": "Site",
-      "tag": "Safety"
+      "tag": "Safety",
+      "featured": false
     }
   ]
 }

@@ -22,6 +22,7 @@ export interface GalleryItem {
   caption: string;
   place: string;
   tag: string;
+  featured?: boolean;
 }
 
 export class Profile {
