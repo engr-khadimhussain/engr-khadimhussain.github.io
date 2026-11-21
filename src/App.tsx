@@ -4,6 +4,8 @@ import { Services } from "./sections/Services";
 import { Companies } from "./sections/Companies";
 import { Gallery } from "./sections/Gallery";
 import { PipelineDivider } from "./components/PipelineDivider";
+import { BuilderContact } from "./components/BuilderContact";
+import { PipeBuild } from "./sections/PipeBuild";
 import { Awards } from "./sections/Awards";
 import { Contact } from "./sections/Contact";
 import { Nav } from "./components/Nav";
@@ -19,6 +21,7 @@ export default function App() {
         <Services />
         <PipelineDivider label={'8"-HC-2014-B2'} />
         <Journey />
+        <PipeBuild />
         <PipelineDivider label={'4"-FW-1998-C1'} />
         <Gallery />
         <Companies />
@@ -26,6 +29,7 @@ export default function App() {
         <Contact />
       </main>
       <Footer />
+      <BuilderContact />
     </>
   );
 }

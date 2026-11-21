@@ -25,6 +25,16 @@ export interface GalleryItem {
   featured?: boolean;
 }
 
+export interface Builder {
+  name: string;
+  credit: string;
+  whatsapp: string;
+  whatsappDisplay: string;
+  whatsappMessage: string;
+  telegram: string;
+  discord: string;
+}
+
 export class Profile {
   readonly person: Person = data.person;
   readonly services = data.services;
@@ -40,6 +50,8 @@ export class Profile {
   readonly training: string[] = data.training;
 
   readonly gallery: GalleryItem[] = data.gallery;
+
+  readonly builder: Builder = data.builder;
 
   byCountry(): Map<string, Experience[]> {
     const result = new Map<string, Experience[]>();

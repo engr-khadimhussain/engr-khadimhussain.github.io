@@ -140,7 +140,7 @@ export function Awards() {
 
   const renderCard = (award: AwardEntry, idx: number, featured = false) => {
     const scanIdx = scanIndexByAward.get(award);
-    const displayYear = award.yearLabel || (award.year !== null ? String(award.year) : "HONOUR");
+    const hasYear = award.year !== null;
 
     return (
       <div
@@ -169,21 +169,23 @@ export function Awards() {
           }`}
         >
           <div>
-            {/* Top Row: Plate + Rosette + Outlined Year */}
+            {/* Top Row: Plate + Rosette + Outlined Year (only when year is not null) */}
             <div className="flex items-start justify-between gap-3 border-b border-line pb-4">
               <div className="flex items-center gap-3">
                 <AwardIssuerPlate logo={award.logo} issuer={award.issuer} />
                 <AwardRosette index={idx} />
               </div>
 
-              <span
-                className={`font-display font-bold leading-none tracking-tight text-transparent select-none ${
-                  featured ? "text-4xl sm:text-5xl" : "text-3xl sm:text-4xl"
-                }`}
-                style={{ WebkitTextStroke: "1.25px var(--accent)" }}
-              >
-                {displayYear}
-              </span>
+              {hasYear && (
+                <span
+                  className={`font-display font-bold leading-none tracking-tight text-transparent select-none ${
+                    featured ? "text-4xl sm:text-5xl" : "text-3xl sm:text-4xl"
+                  }`}
+                  style={{ WebkitTextStroke: "1.25px var(--accent)" }}
+                >
+                  {award.year}
+                </span>
+              )}
             </div>
 
             {/* Award Title & Issuer */}
@@ -199,6 +201,7 @@ export function Awards() {
               <span className="font-mono text-xs font-semibold uppercase tracking-wider text-accent">
                 {award.issuer}
               </span>
+              {!hasYear && <Chip label="UNDATED" tone="muted" />}
               {award.role && <Chip label={award.role} tone="muted" />}
             </div>
 
@@ -214,7 +217,7 @@ export function Awards() {
           {award.scan && scanIdx !== undefined && (
             <div className="mt-5 flex items-center justify-between border-t border-line/70 pt-3.5">
               <span className="font-mono text-[10px] uppercase tracking-widest text-muted">
-                Original certificate on file
+                Verified Certificate
               </span>
               <button
                 type="button"

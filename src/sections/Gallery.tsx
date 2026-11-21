@@ -75,13 +75,13 @@ export function Gallery() {
         key={`${item.src}-${idx}`}
         type="button"
         onClick={() => setActiveIndex(idx)}
-        className={`gallery-tile group relative block w-full overflow-hidden border bg-surface text-left opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+        className={`gallery-tile group relative flex h-full w-full flex-col overflow-hidden border bg-surface text-left opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
           featured ? "border-accent" : "border-line"
-        } ${isFeaturedRow ? "flex flex-col" : "break-inside-avoid"}`}
+        }`}
       >
         <div
-          className={`relative overflow-hidden ${
-            isFeaturedRow ? "h-64 w-full sm:h-72 lg:h-80" : ""
+          className={`relative w-full overflow-hidden ${
+            isFeaturedRow ? "h-64 sm:h-72 lg:h-80" : "aspect-[4/3]"
           }`}
         >
           <img
@@ -89,10 +89,10 @@ export function Gallery() {
             alt={item.caption}
             loading="lazy"
             decoding="async"
-            className={`w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105 group-focus-visible:scale-105 ${
+            className={`h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105 group-focus-visible:scale-105 ${
               isFeaturedRow
-                ? "h-full object-top"
-                : "h-auto grayscale contrast-115 group-hover:grayscale-0 group-focus-visible:grayscale-0"
+                ? "object-top"
+                : "object-[center_30%] grayscale contrast-115 group-hover:grayscale-0 group-focus-visible:grayscale-0"
             }`}
           />
 
@@ -111,11 +111,7 @@ export function Gallery() {
           )}
         </div>
 
-        <div
-          className={`translate-y-1 border-t border-line bg-surface/95 px-3.5 py-2.5 transition-transform duration-300 ease-out group-hover:translate-y-0 group-focus-visible:translate-y-0 ${
-            isFeaturedRow ? "mt-auto" : ""
-          }`}
-        >
+        <div className="mt-auto translate-y-1 border-t border-line bg-surface/95 px-3.5 py-2.5 transition-transform duration-300 ease-out group-hover:translate-y-0 group-focus-visible:translate-y-0">
           <div className="flex items-start justify-between gap-2">
             <span className="font-sans text-xs font-medium leading-snug text-fg sm:text-sm">
               {item.caption}
@@ -142,9 +138,9 @@ export function Gallery() {
           </div>
         )}
 
-        {/* Masonry for Remaining Site Photographs */}
+        {/* Uniform Grid for Remaining Site Photographs */}
         {restEntries.length > 0 && (
-          <div className="columns-1 gap-4 space-y-4 sm:columns-2 lg:columns-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:items-stretch">
             {restEntries.map(({ item, index }) => renderTile(item, index, false))}
           </div>
         )}

@@ -332,7 +332,7 @@ export function Hero() {
     <section
       ref={sectionRef}
       id="home"
-      className="relative min-h-[88vh] w-full overflow-x-clip border-b border-line bg-bg flex flex-col justify-between"
+      className="relative min-h-[88svh] w-full overflow-x-clip border-b border-line bg-bg flex flex-col justify-between"
     >
       {/* Layer 1: Duotone Ken Burns Slideshow */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
@@ -438,7 +438,7 @@ export function Hero() {
       {/* Dedicated Flare Stack Group: hidden on < lg, positioned inside right edge (~4% inset, max ~60% hero height) */}
       <div
         aria-hidden="true"
-        className="pointer-events-none hidden lg:block absolute right-[4%] bottom-[76px] z-10 h-[58vh] max-h-[520px] w-28"
+        className="pointer-events-none hidden lg:block absolute right-[4%] bottom-[76px] z-10 h-[58svh] max-h-[520px] w-28"
       >
         <svg
           viewBox="0 0 112 360"
@@ -449,12 +449,10 @@ export function Hero() {
           <polyline className="plant-stroke" points="36,360 51,156 61,156 76,360" fill="none" stroke="var(--line)" strokeWidth="1.1" />
           <polyline className="plant-stroke" points="40,310 72,260 42,212 68,172" fill="none" stroke="var(--line)" strokeWidth="0.9" />
 
-          {/* Faint Heat Haze */}
           <circle className="heat-plume" cx="56" cy="54" r="8" fill="var(--line)" />
           <circle className="heat-plume" cx="61" cy="42" r="10" fill="var(--line)" />
           <circle className="heat-plume" cx="51" cy="32" r="9" fill="var(--line)" />
 
-          {/* Outer Glow */}
           <ellipse
             className="flare-outer"
             cx="56"
@@ -465,7 +463,6 @@ export function Hero() {
             opacity="0.22"
           />
 
-          {/* 1.5x Layered Flame */}
           <path
             className="flare-outer"
             d="M56 110 C33 84 42 48 57 22 C68 48 83 72 71 98 C66 106 60 110 56 110 Z"
@@ -487,7 +484,7 @@ export function Hero() {
       />
 
       {/* Main Content */}
-      <div className="relative z-20 mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 pt-12 pb-10 lg:pt-18">
+      <div className="relative z-20 mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 pt-24 pb-10 lg:pt-20">
         <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-12 lg:gap-8">
           {/* Left Column */}
           <div className="relative lg:col-span-7 space-y-6">

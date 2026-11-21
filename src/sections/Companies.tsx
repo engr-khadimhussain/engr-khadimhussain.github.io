@@ -18,6 +18,7 @@ export function Companies() {
   const [isDesktop, setIsDesktop] = useState(
     () => window.matchMedia("(min-width: 768px)").matches,
   );
+
   const directoryHeadingRef = useRef<HTMLHeadingElement>(null);
   const cardsRef = useRef<HTMLDivElement>(null);
   const animationRef = useRef<gsap.core.Tween | null>(null);
@@ -33,6 +34,9 @@ export function Companies() {
     ? organisations
     : organisations.slice(0, visibleLimit);
   const hasMore = organisations.length > visibleLimit;
+
+  const employers = companyDirectory.employers();
+  const clients = companyDirectory.clients();
 
   useEffect(() => {
     const media = window.matchMedia("(min-width: 768px)");
@@ -96,26 +100,115 @@ export function Companies() {
     };
   }, [expanded, displayedOrganisations.length]);
 
-  const marqueeOrganisations = companyDirectory.all();
-
   return (
-    <Section id="companies" eyebrow="PROJECT NETWORK" title="Companies">
-      <div className="mb-12 overflow-hidden border-y border-line py-5">
-        <div className="flex w-max animate-[company-marquee_55s_linear_infinite] items-center gap-10">
-          {[...marqueeOrganisations, ...marqueeOrganisations].map(
-            (organisation, index) => (
+    <Section
+      id="companies"
+      eyebrow="TRUSTED BY"
+      title="Companies & Clients"
+    >
+      <style>{`
+        @keyframes company-marquee-left {
+          from {
+            transform: translateX(0);
+          }
+          to {
+            transform: translateX(-50%);
+          }
+        }
+
+        @keyframes company-marquee-right {
+          from {
+            transform: translateX(-50%);
+          }
+          to {
+            transform: translateX(0);
+          }
+        }
+
+        .company-marquee-track {
+          display: flex;
+          width: max-content;
+          align-items: center;
+          gap: 1rem;
+        }
+
+        .company-marquee-left {
+          animation: company-marquee-left 40s linear infinite;
+        }
+
+        .company-marquee-right {
+          animation: company-marquee-right 40s linear infinite;
+        }
+
+        .company-marquee-row:hover .company-marquee-track {
+          animation-play-state: paused;
+        }
+
+        .company-marquee-row {
+          overflow: hidden;
+          mask-image: linear-gradient(
+            to right,
+            transparent,
+            black 8%,
+            black 92%,
+            transparent
+          );
+          -webkit-mask-image: linear-gradient(
+            to right,
+            transparent,
+            black 8%,
+            black 92%,
+            transparent
+          );
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .company-marquee-row {
+            mask-image: none;
+            -webkit-mask-image: none;
+          }
+
+          .company-marquee-track {
+            width: 100%;
+            flex-wrap: wrap;
+            justify-content: center;
+            animation: none !important;
+            transform: none !important;
+          }
+
+          .company-marquee-copy {
+            display: none;
+          }
+        }
+      `}</style>
+
+      <div className="mb-12 space-y-4 overflow-hidden border-y border-line py-6">
+        <div className="company-marquee-row">
+          <div className="company-marquee-track company-marquee-left">
+            {[...employers, ...employers].map((organisation, index) => (
               <div
                 key={`${organisation.name}-${index}`}
-                className="group relative flex items-center gap-3"
+                className="group relative shrink-0"
                 title={organisation.name}
               >
-                <CompanyLogo name={organisation.name} size="sm" />
-                <span className="max-w-40 truncate font-mono text-[10px] uppercase tracking-wider text-muted opacity-0 transition-opacity group-hover:opacity-100">
-                  {organisation.name}
-                </span>
+                <CompanyLogo name={organisation.name} size="lg" />
               </div>
-            ),
-          )}
+            ))}
+          </div>
+        </div>
+
+        <div className="company-marquee-row">
+          <div className="company-marquee-track company-marquee-right">
+            {[...clients, ...clients].map((organisation, index) => (
+              <div
+                key={`${organisation.name}-${index}`}
+                className="group relative shrink-0"
+                title={organisation.name}
+              >
+                <CompanyLogo name={organisation.name} size="lg" />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -128,20 +221,22 @@ export function Companies() {
             {companyDirectory.all().length}
           </p>
         </div>
+
         <div className="border border-line bg-surface p-4">
           <p className="font-mono text-[10px] uppercase tracking-widest text-muted">
             Employers
           </p>
           <p className="mt-2 font-display text-3xl font-bold text-fg">
-            {companyDirectory.employers().length}
+            {employers.length}
           </p>
         </div>
+
         <div className="col-span-2 border border-line bg-surface p-4 md:col-span-1">
           <p className="font-mono text-[10px] uppercase tracking-widest text-muted">
             Clients
           </p>
           <p className="mt-2 font-display text-3xl font-bold text-fg">
-            {companyDirectory.clients().length}
+            {clients.length}
           </p>
         </div>
       </div>
@@ -198,19 +293,23 @@ export function Companies() {
               className="flex min-w-0 items-center gap-4 border border-line bg-surface p-4 transition-colors duration-300 hover:border-accent"
             >
               <CompanyLogo name={organisation.name} size="lg" />
+
               <div className="min-w-0 flex-1">
                 <h4 className="truncate font-display text-lg font-bold uppercase tracking-wide text-fg">
                   {organisation.name}
                 </h4>
+
                 <p className="mt-1 font-mono text-[10px] uppercase tracking-wider text-muted">
                   {organisation.kind === "employer" ? "Employer" : "Client"}
                   {" · "}
                   {organisation.count}{" "}
                   {organisation.count === 1 ? "assignment" : "assignments"}
                 </p>
+
                 <p className="mt-1 font-mono text-[10px] text-muted">
                   {yearRange}
                 </p>
+
                 {organisation.countries.length > 0 && (
                   <p className="mt-1 truncate text-xs text-muted">
                     {organisation.countries.join(" · ")}

@@ -7,7 +7,7 @@
     "location": "Fort Abbas, Bahawalnagar, Pakistan",
     "email": "Khadimhussainkamboh293@gmail.com",
     "phone": "+92 300 552 7995",
-    "photo": "/img/khadim.jpg",
+    "photo": "/img/khadim-site.jpg",
     "summary": "28 years in oil & gas, petrochemical erection and maintenance management: erection, shutdown maintenance, overhauling and condition monitoring of static equipment and piping in gas processing plants, refineries, LNG, petrochemical and fertilizer plants. Experienced in flare erection, piping fabrication and erection, skid package fabrication, CALM buoy construction and storage tank erection. Nominated as Incident Controller to respond to crises quickly and guide staff safely.",
     "languages": [
       "Urdu",
@@ -578,5 +578,14 @@
       "tag": "Safety",
       "featured": false
     }
-  ]
+  ],
+  "builder": {
+    "name": "Mustafa",
+    "credit": "Developed by Mustafa",
+    "whatsapp": "447426767993",
+    "whatsappDisplay": "+44 7426 767993",
+    "whatsappMessage": "Hi Mustafa, I saw Khadim Hussain's portfolio website and I'm interested in getting a website like this.",
+    "telegram": "https://t.me/self_mustafa",
+    "discord": "https://discordapp.com/users/769941117705388035"
+  }
 }
