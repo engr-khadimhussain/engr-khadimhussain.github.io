@@ -28,6 +28,8 @@ export interface GalleryItem {
 export interface Builder {
   name: string;
   credit: string;
+  email: string;
+  gmail: string;
   whatsapp: string;
   whatsappDisplay: string;
   whatsappMessage: string;

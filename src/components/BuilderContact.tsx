@@ -1,35 +1,23 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { Check, Copy, Mail, MessageCircle, X } from "lucide-react";
 import {
-  Check,
-  Copy,
-  MessageCircle,
-  MessagesSquare,
-  Send,
-  X,
-} from "lucide-react";
+  DiscordIcon,
+  GmailIcon,
+  TelegramIcon,
+  WhatsAppIcon,
+} from "./ui/BrandIcons";
 import { profile } from "../models/Profile";
 import { BuilderPrompt } from "../lib/BuilderPrompt";
 
-function WhatsAppIcon({ size = 20 }: { size?: number }) {
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      aria-hidden="true"
-    >
-      <path d="M20.52 3.48A11.83 11.83 0 0 0 12.1 0C5.52 0 .17 5.34.16 11.92c0 2.1.55 4.15 1.6 5.96L0 24l6.27-1.64a11.9 11.9 0 0 0 5.83 1.49h.01c6.58 0 11.92-5.35 11.93-11.93a11.84 11.84 0 0 0-3.52-8.44ZM12.1 21.82a9.9 9.9 0 0 1-5.04-1.38l-.36-.21-3.72.97.99-3.63-.23-.37a9.86 9.86 0 0 1-1.51-5.28c0-5.48 4.46-9.94 9.95-9.94a9.88 9.88 0 0 1 7.03 2.92 9.88 9.88 0 0 1 2.91 7.04c-.01 5.48-4.47 9.94-9.95 9.94Zm5.46-7.44c-.3-.15-1.77-.87-2.05-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.95 1.17-.18.2-.35.22-.65.07-.3-.15-1.26-.46-2.4-1.48-.89-.79-1.49-1.77-1.66-2.07-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.18.2-.3.3-.5.1-.2.05-.37-.03-.52-.07-.15-.67-1.62-.92-2.22-.24-.58-.48-.5-.67-.51l-.57-.01c-.2 0-.52.07-.8.37-.27.3-1.05 1.02-1.05 2.49 0 1.47 1.07 2.89 1.22 3.09.15.2 2.1 3.2 5.09 4.49.71.3 1.27.49 1.7.63.72.23 1.37.2 1.89.12.58-.09 1.77-.72 2.02-1.42.25-.7.25-1.3.17-1.42-.07-.12-.27-.2-.57-.35Z" />
-    </svg>
-  );
-}
+type CopyField = "whatsapp" | "email" | null;
 
 export function BuilderContact() {
   const builder = profile.builder;
   const [isOpen, setIsOpen] = useState(false);
-  const [copied, setCopied] = useState(false);
+  const [copied, setCopied] = useState<CopyField>(null);
 
-  const cardRef = useRef<HTMLDivElement>(null);
+  const desktopCardRef = useRef<HTMLDivElement>(null);
+  const mobileCardRef = useRef<HTMLDivElement>(null);
   const desktopTriggerRef = useRef<HTMLButtonElement>(null);
   const mobileTriggerRef = useRef<HTMLButtonElement>(null);
 
@@ -44,7 +32,7 @@ export function BuilderContact() {
 
   const closeCard = useCallback((): void => {
     setIsOpen(false);
-    setCopied(false);
+    setCopied(null);
 
     requestAnimationFrame(() => {
       const desktop = window.matchMedia("(min-width: 768px)").matches;
@@ -69,8 +57,13 @@ export function BuilderContact() {
   useEffect(() => {
     if (!isOpen) return;
 
+    const desktop = window.matchMedia("(min-width: 768px)").matches;
+    const activeCard = desktop
+      ? desktopCardRef.current
+      : mobileCardRef.current;
+
     const firstFocusable =
-      cardRef.current?.querySelector<HTMLElement>(
+      activeCard?.querySelector<HTMLElement>(
         'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
       );
 
@@ -84,12 +77,13 @@ export function BuilderContact() {
     };
 
     const handlePointerDown = (event: PointerEvent): void => {
-      if (
-        event.target instanceof Node &&
-        !cardRef.current?.contains(event.target)
-      ) {
-        closeCard();
-      }
+      if (!(event.target instanceof Node)) return;
+
+      const clickedInside =
+        desktopCardRef.current?.contains(event.target) ||
+        mobileCardRef.current?.contains(event.target);
+
+      if (!clickedInside) closeCard();
     };
 
     document.addEventListener("keydown", handleKeyDown);
@@ -101,12 +95,15 @@ export function BuilderContact() {
     };
   }, [isOpen, closeCard]);
 
-  const copyNumber = async (): Promise<void> => {
+  const copyValue = async (
+    value: string,
+    field: Exclude<CopyField, null>,
+  ): Promise<void> => {
     try {
-      await navigator.clipboard.writeText(builder.whatsappDisplay);
-      setCopied(true);
+      await navigator.clipboard.writeText(value);
+      setCopied(field);
     } catch {
-      setCopied(false);
+      setCopied(null);
     }
   };
 
@@ -128,11 +125,11 @@ export function BuilderContact() {
         @keyframes builder-slide-desktop {
           from {
             opacity: 0;
-            transform: translate(24px, -50%);
+            transform: translate(24px, 0);
           }
           to {
             opacity: 1;
-            transform: translate(0, -50%);
+            transform: translate(0, 0);
           }
         }
 
@@ -168,14 +165,13 @@ export function BuilderContact() {
         }
       `}</style>
 
-      {/* Desktop edge tab */}
       <button
         ref={desktopTriggerRef}
         type="button"
         onClick={openCard}
         aria-label="Get a website like this"
         aria-expanded={isOpen}
-        aria-controls="builder-contact-card"
+        aria-controls="builder-contact-card-desktop"
         className="builder-pulse fixed right-0 top-1/2 z-40 hidden -translate-y-1/2 items-center justify-center border border-line bg-accent px-3 py-5 text-on-accent shadow-lg transition-colors hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent md:flex"
       >
         <span className="font-mono text-[10px] font-bold uppercase tracking-[0.18em] [writing-mode:vertical-rl] rotate-180">
@@ -183,56 +179,51 @@ export function BuilderContact() {
         </span>
       </button>
 
-      {/* Mobile floating action */}
       <button
         ref={mobileTriggerRef}
         type="button"
         onClick={openCard}
         aria-label="Contact Mustafa about building a website"
         aria-expanded={isOpen}
-        aria-controls="builder-contact-card"
+        aria-controls="builder-contact-card-mobile"
         className="builder-pulse fixed bottom-[calc(env(safe-area-inset-bottom)+84px)] right-4 z-40 flex size-12 items-center justify-center rounded-full border border-line bg-accent text-on-accent shadow-xl transition-transform hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent md:hidden"
       >
         <MessageCircle size={23} />
       </button>
 
-      {/* Mobile-only light dim; desktop remains completely undimmed */}
-      {isOpen && (
-        <div
-          className="fixed inset-0 z-[60] bg-bg/30 md:hidden"
-          aria-hidden="true"
-        />
-      )}
-
       {isOpen && (
         <>
           <div
-            id="builder-contact-card"
-            ref={cardRef}
+            className="fixed inset-0 z-[60] bg-bg/30 md:hidden"
+            aria-hidden="true"
+          />
+
+          <div
+            id="builder-contact-card-desktop"
+            ref={desktopCardRef}
             role="dialog"
             aria-modal={false}
-            aria-labelledby="builder-contact-title"
-            className="builder-desktop-card fixed right-4 top-1/2 z-[70] hidden w-[min(390px,calc(100vw-2rem))] -translate-y-1/2 border border-line bg-surface/90 p-6 shadow-xl backdrop-blur-xl md:block"
+            aria-labelledby="builder-contact-title-desktop"
+            className="builder-desktop-card fixed right-4 top-20 z-[70] hidden max-h-[calc(100svh-96px)] w-[min(390px,calc(100vw-2rem))] -translate-y-0 overflow-y-auto border border-line bg-surface/90 p-6 shadow-xl backdrop-blur-xl md:block"
           >
             <ContactCardContent
               builder={builder}
               whatsappUrl={whatsappUrl}
               copied={copied}
-              onCopy={copyNumber}
+              onCopy={copyValue}
               onClose={closeCard}
+              titleId="builder-contact-title-desktop"
             />
           </div>
 
-          <div
-            className="builder-mobile-card fixed inset-x-0 bottom-0 z-[70] max-h-[85dvh] overflow-y-auto rounded-t-2xl border border-line bg-surface/95 px-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-4 shadow-xl backdrop-blur-xl md:hidden"
-          >
+          <div className="builder-mobile-card fixed inset-x-0 bottom-0 z-[70] max-h-[85dvh] overflow-y-auto rounded-t-2xl border border-line bg-surface/95 px-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-4 shadow-xl backdrop-blur-xl md:hidden">
             <div className="mb-5 flex justify-center">
               <div className="h-1 w-12 rounded-full bg-muted/40" />
             </div>
 
             <div
-              ref={cardRef}
               id="builder-contact-card-mobile"
+              ref={mobileCardRef}
               role="dialog"
               aria-modal={false}
               aria-labelledby="builder-contact-title-mobile"
@@ -241,7 +232,7 @@ export function BuilderContact() {
                 builder={builder}
                 whatsappUrl={whatsappUrl}
                 copied={copied}
-                onCopy={copyNumber}
+                onCopy={copyValue}
                 onClose={closeCard}
                 titleId="builder-contact-title-mobile"
               />
@@ -256,10 +247,13 @@ export function BuilderContact() {
 interface ContactCardContentProps {
   builder: typeof profile.builder;
   whatsappUrl: string;
-  copied: boolean;
-  onCopy: () => void;
+  copied: CopyField;
+  onCopy: (
+    value: string,
+    field: Exclude<CopyField, null>,
+  ) => Promise<void>;
   onClose: () => void;
-  titleId?: string;
+  titleId: string;
 }
 
 function ContactCardContent({
@@ -268,7 +262,7 @@ function ContactCardContent({
   copied,
   onCopy,
   onClose,
-  titleId = "builder-contact-title",
+  titleId,
 }: ContactCardContentProps) {
   return (
     <>
@@ -304,17 +298,42 @@ function ContactCardContent({
       </p>
 
       <div className="mt-4 flex items-center justify-between gap-2 border border-line bg-bg/50 px-3 py-3">
-        <span className="select-all font-mono text-sm font-semibold tracking-wide text-fg">
-          {builder.whatsappDisplay}
-        </span>
+        <div className="flex min-w-0 items-center gap-2">
+          <WhatsAppIcon size={17} className="shrink-0" />
+          <span className="min-w-0 select-all break-all font-mono text-sm font-semibold tracking-wide text-fg">
+            {builder.whatsappDisplay}
+          </span>
+        </div>
 
         <button
           type="button"
-          onClick={onCopy}
+          onClick={() => void onCopy(builder.whatsappDisplay, "whatsapp")}
           aria-label="Copy WhatsApp number"
           className="flex size-9 shrink-0 items-center justify-center border border-line text-muted transition-colors hover:border-accent hover:text-accent"
         >
-          {copied ? <Check size={16} /> : <Copy size={16} />}
+          {copied === "whatsapp" ? (
+            <Check size={16} />
+          ) : (
+            <Copy size={16} />
+          )}
+        </button>
+      </div>
+
+      <div className="mt-2 flex items-center justify-between gap-2 border border-line bg-bg/50 px-3 py-3">
+        <div className="flex min-w-0 items-center gap-2">
+          <Mail size={16} className="shrink-0 text-muted" />
+          <span className="min-w-0 select-all break-all font-mono text-xs text-fg">
+            {builder.email}
+          </span>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => void onCopy(builder.email, "email")}
+          aria-label="Copy email address"
+          className="flex size-9 shrink-0 items-center justify-center border border-line text-muted transition-colors hover:border-accent hover:text-accent"
+        >
+          {copied === "email" ? <Check size={16} /> : <Copy size={16} />}
         </button>
       </div>
 
@@ -325,32 +344,57 @@ function ContactCardContent({
           rel="noopener noreferrer"
           className="flex min-h-11 items-center justify-center gap-2 bg-[#25D366] px-4 py-3 font-mono text-xs font-bold uppercase tracking-wider text-white transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#25D366]"
         >
-          <WhatsAppIcon size={19} />
+          <WhatsAppIcon size={16} color="currentColor" />
           WhatsApp
         </a>
 
-        <a
-          href={builder.telegram}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex min-h-11 items-center justify-center gap-2 border border-line bg-bg/50 px-4 py-3 font-mono text-xs font-bold uppercase tracking-wider text-fg transition-colors hover:border-accent hover:text-accent"
-        >
-          <Send size={17} />
-          Telegram
-        </a>
+        <div className="grid grid-cols-3 gap-2">
+          <a
+            href={builder.gmail}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Open Gmail compose"
+            className="flex min-h-11 items-center justify-center gap-1.5 border border-line bg-bg/50 px-2 py-3 font-mono text-[10px] font-bold uppercase tracking-wide text-fg transition-colors hover:border-accent hover:text-accent"
+          >
+            <GmailIcon size={16} />
+            Gmail
+          </a>
 
-        <a
-          href={builder.discord}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex min-h-11 items-center justify-center gap-2 border border-line bg-bg/50 px-4 py-3 font-mono text-xs font-bold uppercase tracking-wider text-fg transition-colors hover:border-accent hover:text-accent"
-        >
-          <MessagesSquare size={17} />
-          Discord
-        </a>
+          <a
+            href={builder.telegram}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Message Mustafa on Telegram"
+            className="flex min-h-11 items-center justify-center gap-1.5 border border-line bg-bg/50 px-2 py-3 font-mono text-[10px] font-bold uppercase tracking-wide text-fg transition-colors hover:border-accent hover:text-accent"
+          >
+            <TelegramIcon size={16} />
+            Telegram
+          </a>
+
+          <a
+            href={builder.discord}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Message Mustafa on Discord"
+            className="flex min-h-11 items-center justify-center gap-1.5 border border-line bg-bg/50 px-2 py-3 font-mono text-[10px] font-bold uppercase tracking-wide text-fg transition-colors hover:border-accent hover:text-accent"
+          >
+            <DiscordIcon size={16} />
+            Discord
+          </a>
+        </div>
       </div>
 
-      <p className="mt-4 text-center font-mono text-[10px] uppercase tracking-wider text-muted">
+      <p className="mt-3 text-center text-xs text-muted">
+        or use your{" "}
+        <a
+          href={`mailto:${builder.email}`}
+          className="text-fg underline decoration-line underline-offset-4 transition-colors hover:text-accent"
+        >
+          mail app
+        </a>
+      </p>
+
+      <p className="mt-3 text-center font-mono text-[10px] uppercase tracking-wider text-muted">
         Usually replies within a day
       </p>
     </>
