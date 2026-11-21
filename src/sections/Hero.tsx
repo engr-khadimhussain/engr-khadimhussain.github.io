@@ -46,9 +46,14 @@ export function Hero() {
   const arcHeadlineLightRef = useRef<HTMLDivElement>(null);
   const weldRef = useRef<WeldSparks | null>(null);
   const coolTimerRef = useRef<number | null>(null);
-  const tagTimerRef = useRef<number | null>(null);
   const lastReentryWeldRef = useRef<number>(0);
-  const leftHeroRef = useRef<HTMLDivElement>(null);
+
+  // Mobile (< sm) dedicated weld strip refs & state
+  const mobileStripHostRef = useRef<HTMLDivElement>(null);
+  const mobileCanvasRef = useRef<HTMLCanvasElement>(null);
+  const mobileWeldRef = useRef<WeldSparks | null>(null);
+  const mobileCoolTimerRef = useRef<number | null>(null);
+  const mobileTriggeredOnceRef = useRef<boolean>(false);
 
   const stats = profile.stats();
   const { person, gallery } = profile;
@@ -56,6 +61,7 @@ export function Hero() {
   const [activeSlide, setActiveSlide] = useState(0);
   const [lightMode, setLightMode] = useState(false);
   const [weldState, setWeldState] = useState<"welding" | "cooling" | "accepted">("welding");
+  const [mobileWeldState, setMobileWeldState] = useState<"idle" | "welding" | "cooling" | "accepted">("idle");
   const leadSummary = firstSentence(person.summary);
 
   const clearWeldTimers = () => {
@@ -63,9 +69,12 @@ export function Hero() {
       window.clearTimeout(coolTimerRef.current);
       coolTimerRef.current = null;
     }
-    if (tagTimerRef.current !== null) {
-      window.clearTimeout(tagTimerRef.current);
-      tagTimerRef.current = null;
+  };
+
+  const clearMobileWeldTimers = () => {
+    if (mobileCoolTimerRef.current !== null) {
+      window.clearTimeout(mobileCoolTimerRef.current);
+      mobileCoolTimerRef.current = null;
     }
   };
 
@@ -82,6 +91,22 @@ export function Hero() {
     }
 
     setWeldState("welding");
+    weld.start();
+  }, []);
+
+  const triggerMobileWeld = useCallback(() => {
+    const weld = mobileWeldRef.current;
+    if (!weld) return;
+
+    clearMobileWeldTimers();
+    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (prefersReduced) {
+      setMobileWeldState("accepted");
+      weld.renderStaticComplete();
+      return;
+    }
+
+    setMobileWeldState("welding");
     weld.start();
   }, []);
 
@@ -113,12 +138,69 @@ export function Hero() {
     return () => window.clearInterval(id);
   }, [slidePhotos.length]);
 
+  // Mobile (< sm) dedicated weld strip setup: starts once when scrolled into view (threshold 0.6)
+  useEffect(() => {
+    const stripHost = mobileStripHostRef.current;
+    const mobileCanvas = mobileCanvasRef.current;
+    if (!stripHost || !mobileCanvas) return;
+
+    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    const mobileWeld = new WeldSparks(mobileCanvas, stripHost, {
+      startXRatio: 0.04,
+      endXRatio: 0.96,
+      yRatio: 0.5,
+      sparkScale: 0.4,
+      onWeldComplete: () => {
+        setMobileWeldState("cooling");
+        mobileCoolTimerRef.current = window.setTimeout(() => {
+          setMobileWeldState("accepted");
+        }, 2000);
+      },
+    });
+    mobileWeldRef.current = mobileWeld;
+
+    if (prefersReduced) {
+      mobileTriggeredOnceRef.current = true;
+      setMobileWeldState("accepted");
+      mobileWeld.renderStaticComplete();
+      return () => {
+        clearMobileWeldTimers();
+        mobileWeld.destroy();
+        mobileWeldRef.current = null;
+      };
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        if (!entry) return;
+        if (entry.isIntersecting && entry.intersectionRatio >= 0.6 && !mobileTriggeredOnceRef.current) {
+          mobileTriggeredOnceRef.current = true;
+          observer.disconnect();
+          setMobileWeldState("welding");
+          mobileWeld.start();
+        }
+      },
+      { threshold: 0.6 }
+    );
+    observer.observe(stripHost);
+
+    return () => {
+      clearMobileWeldTimers();
+      observer.disconnect();
+      mobileWeld.destroy();
+      mobileWeldRef.current = null;
+    };
+  }, []);
+
   useEffect(() => {
     const sectionEl = sectionRef.current;
     const canvasEl = canvasRef.current;
     if (!sectionEl || !canvasEl) return;
 
     const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const isMobileViewport = window.innerWidth < 640;
 
     const weld = new WeldSparks(canvasEl, sectionEl, {
       startXRatio: 0.02,
@@ -126,7 +208,7 @@ export function Hero() {
       yRatio: 0.79,
       onArcPosition: (normX, _normY, active) => {
         const el = arcHeadlineLightRef.current;
-        if (!el || prefersReduced) return;
+        if (!el || prefersReduced || isMobileViewport) return;
         const xPct = Math.round(normX * 100);
         const accent = getComputedStyle(sectionEl).getPropertyValue("--accent").trim();
         el.style.opacity = active ? "0.24" : "0";
@@ -148,7 +230,6 @@ export function Hero() {
       weld.start();
     }
 
-    // Re-weld when returning after hero was scrolled completely out of view (max once per 60s)
     let wasFullyOut = false;
     const heroVisObserver = new IntersectionObserver(
       (entries) => {
@@ -556,7 +637,7 @@ export function Hero() {
         className="pointer-events-none absolute inset-0 z-10 h-full w-full opacity-90 sm:opacity-100"
       />
 
-      {/* Inspection Tag at End of Weld Seam */}
+      {/* Inspection Tag at End of Weld Seam (sm+) */}
       <div
         className={`pointer-events-auto absolute right-4 bottom-56 z-20 hidden sm:flex items-center gap-2 border px-2.5 py-1 font-mono text-[10px] uppercase tracking-widest transition-all duration-700 lg:right-8 ${
           weldState === "accepted"
@@ -580,19 +661,22 @@ export function Hero() {
       </div>
 
       {/* Main Content */}
-      <div className="relative z-20 mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 pt-24 pb-10 lg:pt-20">
-        <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-12 lg:gap-8">
+      <div className="relative z-20 mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 pt-24 pb-6 sm:pb-10 lg:pt-20">
+        <div className="grid grid-cols-1 items-center gap-8 sm:gap-10 lg:grid-cols-12 lg:gap-8">
           {/* Left Column */}
-          <div ref={leftHeroRef} className="relative lg:col-span-7 space-y-6">
+          <div className="relative min-w-0 lg:col-span-7 space-y-5 sm:space-y-6">
             <div
               ref={arcHeadlineLightRef}
               aria-hidden="true"
-              className="pointer-events-none absolute -inset-6 -z-10 opacity-0 transition-opacity duration-300"
+              className="pointer-events-none hidden sm:block absolute -inset-6 -z-10 opacity-0 transition-opacity duration-300"
             />
 
-            <div className="hero-fade inline-flex items-center gap-2 border border-line bg-surface/90 px-3 py-1.5 font-mono text-[11px] uppercase tracking-[0.2em] text-accent">
-              <span className="h-1.5 w-1.5 rounded-full bg-accent" />
-              PIPING · FABRICATION · ERECTION · TURNAROUNDS
+            <div
+              style={{ fontSize: "clamp(8px, 2.35vw, 10px)" }}
+              className="hero-fade inline-flex max-w-full items-center gap-1.5 sm:gap-2 whitespace-nowrap border border-line bg-surface/90 px-2 py-1 sm:px-3 sm:py-1.5 font-mono tracking-[0.12em] sm:!text-[11px] sm:!tracking-[0.2em] uppercase text-accent"
+            >
+              <span className="h-1 w-1 sm:h-1.5 sm:w-1.5 shrink-0 rounded-full bg-accent" />
+              <span>PIPING · FABRICATION · ERECTION · TURNAROUNDS</span>
             </div>
 
             <h1 className="font-display text-5xl font-bold uppercase leading-[0.94] tracking-tight text-fg sm:text-6xl lg:text-7xl">
@@ -696,6 +780,50 @@ export function Hero() {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Mobile (< sm) Dedicated Weld Strip Between Card and Stats Bar */}
+        <div className="mt-6 block sm:hidden">
+          <div
+            ref={mobileStripHostRef}
+            className="relative h-14 w-full overflow-hidden border border-line/80 bg-surface/80"
+          >
+            <svg
+              aria-hidden="true"
+              viewBox="0 0 400 56"
+              preserveAspectRatio="none"
+              className="h-full w-full"
+            >
+              <line x1="12" y1="28" x2="388" y2="28" stroke="var(--line)" strokeWidth="4" />
+              <line x1="12" y1="23" x2="388" y2="23" stroke="var(--line)" strokeWidth="0.9" />
+              <line x1="12" y1="33" x2="388" y2="33" stroke="var(--line)" strokeWidth="0.9" />
+              {/* Left Flange */}
+              <rect x="118" y="16" width="6" height="24" fill="var(--bg)" stroke="var(--accent)" strokeWidth="1.5" />
+              {/* Right Flange */}
+              <rect x="276" y="16" width="6" height="24" fill="var(--bg)" stroke="var(--accent)" strokeWidth="1.5" />
+            </svg>
+            <canvas
+              ref={mobileCanvasRef}
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0 h-full w-full"
+            />
+          </div>
+
+          {mobileWeldState === "accepted" && (
+            <div className="mt-2 flex items-center justify-center gap-2 font-mono text-[10px] uppercase tracking-widest text-fg">
+              <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-accent" />
+              <span>WELD W-01 · ACCEPTED</span>
+              <button
+                type="button"
+                onClick={triggerMobileWeld}
+                aria-label="Re-weld mobile seam"
+                title="Re-weld mobile seam"
+                className="inline-flex h-9 w-9 min-h-[36px] min-w-[36px] items-center justify-center border border-line bg-surface text-muted transition-colors active:border-accent active:text-accent"
+              >
+                <RotateCcw className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          )}
         </div>
       </div>
 

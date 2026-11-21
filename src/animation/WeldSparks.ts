@@ -2,6 +2,7 @@ export interface WeldSparksOptions {
   startXRatio?: number;
   endXRatio?: number;
   yRatio?: number;
+  sparkScale?: number;
   onArcPosition?: (normX: number, normY: number, active: boolean) => void;
   onWeldComplete?: () => void;
 }
@@ -24,6 +25,7 @@ export class WeldSparks {
   private readonly startXRatio: number;
   private readonly endXRatio: number;
   private readonly yRatio: number;
+  private readonly sparkScale: number;
   private readonly onArcPosition?: (normX: number, normY: number, active: boolean) => void;
   private readonly onWeldComplete?: () => void;
 
@@ -52,6 +54,7 @@ export class WeldSparks {
     this.startXRatio = options.startXRatio ?? 0.02;
     this.endXRatio = options.endXRatio ?? 0.98;
     this.yRatio = options.yRatio ?? 0.79;
+    this.sparkScale = options.sparkScale ?? 1;
     this.onArcPosition = options.onArcPosition;
     this.onWeldComplete = options.onWeldComplete;
   }
@@ -83,13 +86,13 @@ export class WeldSparks {
   };
 
   private spawnSparks(x: number, y: number, count: number, burst = false): void {
-    for (let i = 0; i < count; i += 1) {
+    const adjusted = Math.max(1, Math.round(count * this.sparkScale));
+    for (let i = 0; i < adjusted; i += 1) {
       const angle = burst
         ? -Math.PI * 0.92 + Math.random() * Math.PI * 0.84
         : -Math.PI * 0.85 + Math.random() * Math.PI * 0.7;
-      const speed = burst
-        ? 45 + Math.random() * 145
-        : 28 + Math.random() * 95;
+      const speed = (burst ? 45 + Math.random() * 145 : 28 + Math.random() * 95) *
+        (0.75 + 0.25 * this.sparkScale);
       const maxLife = burst
         ? 0.28 + Math.random() * 0.32
         : 0.22 + Math.random() * 0.28;
@@ -165,7 +168,6 @@ export class WeldSparks {
 
       this.ctx.clearRect(0, 0, this.width, this.height);
 
-      // Completed weld bead up to current arc position
       if (arcX > x1 + 1) {
         this.ctx.save();
         this.ctx.beginPath();
@@ -181,7 +183,6 @@ export class WeldSparks {
       if (isWelding) {
         this.onArcPosition?.(arcX / Math.max(1, this.width), this.yRatio, true);
 
-        // Glowing arc flash at torch tip
         this.ctx.save();
         const glow = this.ctx.createRadialGradient(arcX, y, 1, arcX, y, 22);
         glow.addColorStop(0, this.hotColor);
@@ -198,7 +199,8 @@ export class WeldSparks {
         this.ctx.fill();
         this.ctx.restore();
 
-        if (Math.random() < 0.72) {
+        const spawnChance = 0.72 * Math.min(1, Math.max(0.35, this.sparkScale));
+        if (Math.random() < spawnChance) {
           this.spawnSparks(arcX, y, 2, false);
         }
       } else {
@@ -215,7 +217,6 @@ export class WeldSparks {
         }
       }
 
-      // Update & draw sparks only while welding or during short final burst tail
       const dt = 1 / 60;
       const gravity = 260;
       for (let i = this.sparks.length - 1; i >= 0; i -= 1) {
