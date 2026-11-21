@@ -1,0 +1,123 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-primary: var(--primary);
+  --color-primary2: var(--primary2);
+  --color-accent: var(--accent);
+  --color-on-accent: var(--on-accent);
+  --color-line: var(--line);
+  --color-grid: var(--grid);
+  --color-plate: var(--plate);
+  --color-plate-ink: var(--plate-ink);
+
+  --font-display: "Barlow Condensed", sans-serif;
+  --font-sans: "IBM Plex Sans", sans-serif;
+  --font-mono: "IBM Plex Mono", monospace;
+}
+
+[data-theme="steel"] {
+  --bg: #0B1F33;
+  --surface: #12304D;
+  --fg: #EEF3F8;
+  --muted: #A9B8C8;
+  --primary: #2E5A7A;
+  --primary2: #7FB3D9;
+  --accent: #F26B1D;
+  --on-accent: #FFFFFF;
+  --line: #24476A;
+  --grid: #163650;
+  --plate: #FFFFFF;
+  --plate-ink: #13233A;
+}
+
+[data-theme="flare"] {
+  --bg: #121417;
+  --surface: #1B1E23;
+  --fg: #F3F1EC;
+  --muted: #9AA1AA;
+  --primary: #3A3F47;
+  --primary2: #FFB020;
+  --accent: #FFB020;
+  --on-accent: #1A1300;
+  --line: #2C3138;
+  --grid: #1F2328;
+  --plate: #FFFFFF;
+  --plate-ink: #13233A;
+}
+
+[data-theme="hydro"] {
+  --bg: #F6F9FC;
+  --surface: #FFFFFF;
+  --fg: #13233A;
+  --muted: #56667A;
+  --primary: #1F4FD8;
+  --primary2: #1F4FD8;
+  --accent: #0FA4BF;
+  --on-accent: #FFFFFF;
+  --line: #D6E0EC;
+  --grid: #E3EBF4;
+  --plate: #FFFFFF;
+  --plate-ink: #13233A;
+}
+
+[data-theme="field"] {
+  --bg: #0E2E2C;
+  --surface: #143B38;
+  --fg: #EEF3EE;
+  --muted: #A6BDB7;
+  --primary: #1F7A5C;
+  --primary2: #D7E23A;
+  --accent: #D7E23A;
+  --on-accent: #1A1D00;
+  --line: #24504B;
+  --grid: #173D3A;
+  --plate: #FFFFFF;
+  --plate-ink: #13233A;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-sans);
+    transition:
+      background-color 300ms ease,
+      color 300ms ease;
+  }
+
+  *,
+  *::before,
+  *::after {
+    border-color: var(--line);
+    transition:
+      background-color 300ms ease,
+      color 300ms ease,
+      border-color 300ms ease;
+  }
+}
+
+@utility blueprint-grid {
+  background-image:
+    linear-gradient(to right, var(--grid) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

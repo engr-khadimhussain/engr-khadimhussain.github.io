@@ -1,0 +1,573 @@
+{
+  "person": {
+    "name": "Khadim Hussain",
+    "title": "Workshop, Fabrication & Erection Superintendent",
+    "yearsExperience": 28,
+    "careerStart": 1998,
+    "location": "Fort Abbas, Bahawalnagar, Pakistan",
+    "email": "Khadimhussainkamboh293@gmail.com",
+    "phone": "+92 300 552 7995",
+    "photo": "/img/khadim.jpg",
+    "summary": "28 years in oil & gas, petrochemical erection and maintenance management: erection, shutdown maintenance, overhauling and condition monitoring of static equipment and piping in gas processing plants, refineries, LNG, petrochemical and fertilizer plants. Experienced in flare erection, piping fabrication and erection, skid package fabrication, CALM buoy construction and storage tank erection. Nominated as Incident Controller to respond to crises quickly and guide staff safely.",
+    "languages": [
+      "Urdu",
+      "English",
+      "Punjabi",
+      "Sindhi",
+      "Arabic"
+    ],
+    "countries": [
+      "Qatar",
+      "UAE",
+      "Saudi Arabia",
+      "Nigeria",
+      "Pakistan"
+    ],
+    "whatsapp": "923005527995"
+  },
+  "services": [
+    {
+      "id": "piping",
+      "title": "Piping Fabrication & Erection",
+      "text": "Spool fabrication, field erection of underground and above-ground piping, tube bend and carbonyl piping replacement.",
+      "icon": "pipe"
+    },
+    {
+      "id": "turnaround",
+      "title": "Shutdowns & Turnarounds",
+      "text": "Planning work fronts, crews and resources so annual turnarounds finish safely on schedule.",
+      "icon": "wrench"
+    },
+    {
+      "id": "workshop",
+      "title": "Fabrication Workshop Management",
+      "text": "Running fabrication workshops: man-hours, consumables, rental equipment and quality.",
+      "icon": "factory"
+    },
+    {
+      "id": "structure",
+      "title": "Tanks, Structures & Flares",
+      "text": "Storage tanks, steel structures, flare stacks, air-cooled condensers and fin-fan exchangers.",
+      "icon": "flame"
+    },
+    {
+      "id": "testing",
+      "title": "Hydrotesting & Test Packages",
+      "text": "Hydro testing, test package release and pre-commissioning handover.",
+      "icon": "gauge"
+    },
+    {
+      "id": "hse",
+      "title": "HSE & Incident Control",
+      "text": "Safe work practices, permit receiving and incident control during critical operations.",
+      "icon": "shield"
+    }
+  ],
+  "experience": [
+    {
+      "company": "Altrad Babcock",
+      "client": "Pearl GTL Shell, Ras Laffan",
+      "country": "Qatar",
+      "project": "Smood Project",
+      "role": "Piping Supervisor",
+      "start": "2026-04",
+      "end": "2026-11",
+      "type": "project"
+    },
+    {
+      "company": "Altrad Babcock",
+      "client": "Dolphin Energy, Ras Laffan",
+      "country": "Qatar",
+      "project": "Annual Turnaround (TA) 2026",
+      "role": "Piping Supervisor",
+      "start": "2025-11",
+      "end": "2026-04",
+      "type": "turnaround"
+    },
+    {
+      "company": "Altrad Babcock",
+      "client": "Dolphin Energy, Ras Laffan",
+      "country": "Qatar",
+      "project": "Annual Turnaround (TA) 2025",
+      "role": "Piping Supervisor",
+      "start": "2025-01",
+      "end": "2025-04",
+      "type": "turnaround"
+    },
+    {
+      "company": "Altrad Babcock",
+      "client": "Pearl GTL Shell, Ras Laffan",
+      "country": "Qatar",
+      "project": "MTA4 CPR Piping Replacement - GTL 2",
+      "role": "Piping Supervisor",
+      "start": "2024-10",
+      "end": "2024-12",
+      "type": "turnaround"
+    },
+    {
+      "company": "Pakistan Refinery Limited",
+      "client": "Pakistan Refinery Limited",
+      "country": "Pakistan",
+      "project": "Annual Maintenance 2023",
+      "role": "Execution In-charge",
+      "start": "2022-10",
+      "end": "2023-04",
+      "type": "turnaround"
+    },
+    {
+      "company": "Descon Engineering Limited",
+      "client": "MG Pakistan",
+      "country": "Pakistan",
+      "project": "Paint Shop & Utilities Installation",
+      "role": "Execution In-charge",
+      "start": "2022-09",
+      "end": "2022-10",
+      "type": "project"
+    },
+    {
+      "company": "7-Star Engineering",
+      "client": "Thar Energy",
+      "country": "Pakistan",
+      "project": "330 MW Coal Fired Power Plant Erection & Installation",
+      "role": "Erection In-charge",
+      "start": "2022-04",
+      "end": "2022-09",
+      "type": "project"
+    },
+    {
+      "company": "Doosan Babcock & Black Cat",
+      "client": "Pearl GTL Shell, Ras Laffan",
+      "country": "Qatar",
+      "project": "GTL 1 HPS 1 CPR Carbonyl Piping Replacement",
+      "role": "Piping Supervisor",
+      "start": "2021-09",
+      "end": "2022-03",
+      "type": "turnaround"
+    },
+    {
+      "company": "Doosan Babcock & Black Cat",
+      "client": "ORYX GTL, Ras Laffan",
+      "country": "Qatar",
+      "project": "FT Reactor Train 1 & 2 Tube Bend Replacement",
+      "role": "Piping Supervisor",
+      "start": "2020-01",
+      "end": null,
+      "type": "turnaround"
+    },
+    {
+      "company": "Doosan Babcock & Black Cat",
+      "client": "Pearl GTL Shell, Ras Laffan",
+      "country": "Qatar",
+      "project": "LPU 2 Fin Fan Air Cooled Exchanger",
+      "role": "Piping Supervisor",
+      "start": "2019-09",
+      "end": "2019-11",
+      "type": "turnaround"
+    },
+    {
+      "company": "Doosan Babcock & Black Cat",
+      "client": "Pearl GTL Shell, Ras Laffan",
+      "country": "Qatar",
+      "project": "LPU 1 Fin Fan Air Cooled Exchanger",
+      "role": "Piping Supervisor",
+      "start": "2019-03",
+      "end": "2019-05",
+      "type": "turnaround"
+    },
+    {
+      "company": "Doosan Babcock & Black Cat",
+      "client": "Pearl GTL Shell, Ras Laffan",
+      "country": "Qatar",
+      "project": "CPR Carbonyl Piping Replacement (TA 2019)",
+      "role": "Piping Supervisor",
+      "start": "2019-01",
+      "end": "2019-03",
+      "type": "turnaround"
+    },
+    {
+      "company": "Descon Engineering Limited",
+      "client": "Indus Motor Company Toyota (IMC)",
+      "country": "Pakistan",
+      "project": "Paint Shop Extension Project",
+      "role": "Area Engineer - Fabrication & Erection of Structure",
+      "start": "2018-07",
+      "end": "2018-12",
+      "type": "project"
+    },
+    {
+      "company": "Descon Engineering Limited",
+      "client": "Fauji Fertilizer Bin Qasim Limited (FFBL)",
+      "country": "Pakistan",
+      "project": "FFBL Turnaround, Port Qasim, Karachi 2018",
+      "role": "Mechanical Superintendent - Piping Fabrication",
+      "start": "2018-01",
+      "end": "2018-02",
+      "type": "turnaround"
+    },
+    {
+      "company": "Descon Engineering Limited",
+      "client": "Indus Motor Company Toyota (IMC)",
+      "country": "Pakistan",
+      "project": "Paint Shop Extension Project",
+      "role": "Area Engineer - Fabrication & Erection of Structure",
+      "start": "2017-09",
+      "end": "2017-12",
+      "type": "project"
+    },
+    {
+      "company": "SAF International",
+      "client": "Sui Southern Gas Company (SSGC)",
+      "country": "Pakistan",
+      "project": "Gas Compression Project SSGC-HQ-2",
+      "role": "Piping Fabrication & Erection Superintendent",
+      "start": "2016-12",
+      "end": "2017-02",
+      "type": "project"
+    },
+    {
+      "company": "Descon Engineering Limited",
+      "client": "Engro Fertilizer Limited (EFERT)",
+      "country": "Pakistan",
+      "project": "E-504 Erection & Piping Job",
+      "role": "Area Engineer - Fabrication & Erection of Structure",
+      "start": "2016-09",
+      "end": "2016-12",
+      "type": "project"
+    },
+    {
+      "company": "Descon Engineering Limited",
+      "client": "Engro Fertilizer Limited (EFERT)",
+      "country": "Pakistan",
+      "project": "EFERT Ammonia Plant-I ATA-2016",
+      "role": "Area Engineer - Furnace",
+      "start": "2016-10",
+      "end": "2016-10",
+      "type": "turnaround"
+    },
+    {
+      "company": "Descon Engineering Limited",
+      "client": "National Refinery Limited (NRL)",
+      "country": "Pakistan",
+      "project": "NRL Lube-I Turnaround, Korangi, Karachi 2016",
+      "role": "Area Engineer - Furnace",
+      "start": "2016-05",
+      "end": "2016-06",
+      "type": "turnaround"
+    },
+    {
+      "company": "Al Youser Contracting Company (AYTB)",
+      "client": "ECR Petro Rabigh",
+      "country": "Saudi Arabia",
+      "project": "ECR Petro Rabigh, Jubail",
+      "role": "Construction Superintendent - Furnace Piping",
+      "start": "2015-06",
+      "end": "2015-12",
+      "type": "project"
+    },
+    {
+      "company": "Oil & Gas Construction Company (OGASCO)",
+      "client": "Oil & Gas Construction Company (OGASCO)",
+      "country": "UAE",
+      "project": "Construction Superintendent across 15 projects (below)",
+      "role": "Construction Superintendent",
+      "start": "2006-07",
+      "end": "2014-12",
+      "type": "employer",
+      "subProjects": [
+        {
+          "client": "SOFEC",
+          "project": "CALM Buoy Job",
+          "role": "Construction & Fabrication Workshop Superintendent",
+          "endUser": "Saudi Aramco"
+        },
+        {
+          "client": "SBM",
+          "project": "Solar Panels Job",
+          "role": "Construction Superintendent",
+          "endUser": "ZADCO"
+        },
+        {
+          "client": "Samsung Engineering",
+          "project": "60k Piping - Al Hosn Gas Plant",
+          "role": "Construction & Piping Workshop Superintendent",
+          "endUser": "Al Hosn Gas (Shah Field)"
+        },
+        {
+          "client": "ZADCO",
+          "project": "Annual Turnaround CCP, NSP",
+          "role": "In-charge Turnaround Activities",
+          "endUser": "ZADCO"
+        },
+        {
+          "client": "CCIC",
+          "project": "Storage Tanks for BTG Habshan",
+          "role": "Site Superintendent",
+          "endUser": "ADCO"
+        },
+        {
+          "client": "Shams Power Company",
+          "project": "Erection of ACC Unit (Air Cooled Condenser)",
+          "role": "Site Superintendent",
+          "endUser": "Shams Power Company"
+        },
+        {
+          "client": "Petrofac",
+          "project": "Storage Tanks for BTG Habshan",
+          "role": "Site Superintendent",
+          "endUser": "ADCO"
+        },
+        {
+          "client": "Emirates Steel Industries",
+          "project": "Dedusting System Fabrication and Erection, Emirates Steel II",
+          "role": "Workshop Superintendent",
+          "endUser": "Emirates Steel Industries"
+        },
+        {
+          "client": "Punj Lloyd",
+          "project": "Borouge II Flare Erection",
+          "role": "Erection Supervisor",
+          "endUser": "Borouge"
+        },
+        {
+          "client": "Petrofac",
+          "project": "4th RNGL",
+          "role": "Piping Supervisor",
+          "endUser": "GASCO"
+        },
+        {
+          "client": "CCIC",
+          "project": "3rd RNGL Project Ruwais",
+          "role": "Test Package Coordinator",
+          "endUser": "GASCO"
+        },
+        {
+          "client": "SL Rasch",
+          "project": "Roof Tent Structure Fabrication",
+          "role": "Workshop Supervisor",
+          "endUser": "Binladin Company"
+        },
+        {
+          "client": "GPS",
+          "project": "Pipe Spool Fabrication for SBM Rig",
+          "role": "Piping & Workshop Supervisor",
+          "endUser": "SBM"
+        },
+        {
+          "client": "Danieli",
+          "project": "Silo & Duct Fabrication - Phase II",
+          "role": "Piping Supervisor",
+          "endUser": "Emirates Steel Industries"
+        },
+        {
+          "client": "GRUP 5",
+          "project": "Emirates Aeroplane Engine Maintenance Center",
+          "role": "Site Supervisor",
+          "endUser": "Emirates Airline"
+        }
+      ]
+    },
+    {
+      "company": "CB&I",
+      "client": "TSKJ",
+      "country": "Nigeria",
+      "project": "NLNG Train 4, Bonny Island",
+      "role": "Erection Supervisor",
+      "start": "2004-02",
+      "end": "2006-01",
+      "type": "project",
+      "duties": "Reviewed work fronts, progress and resources against plan weekly with crews for timely completion."
+    },
+    {
+      "company": "Marathon Construction Ltd",
+      "client": "BP Pakistan",
+      "country": "Pakistan",
+      "project": "Badin Oil Field Development Project",
+      "role": "Piping and Erection Foreman",
+      "start": "2002-07",
+      "end": "2003-10",
+      "type": "project",
+      "duties": "Field erection of underground and above-ground piping, hydro testing, test package release for pre-commissioning, permit receiver."
+    },
+    {
+      "company": "Ramzan and Sons Pvt. Ltd.",
+      "client": "Sui Southern Gas Company (SSGC)",
+      "country": "Pakistan",
+      "project": "Sui Southern Gas Pipeline",
+      "role": "Pipeline Foreman",
+      "start": "2001-11",
+      "end": "2003-05",
+      "type": "project",
+      "duties": "Pipeline execution to approved specifications, hydro testing and pre-commissioning."
+    },
+    {
+      "company": "Fauji Fertilizer Bin Qasim Limited (FFBL)",
+      "client": "Fauji Fertilizer Bin Qasim Limited (FFBL)",
+      "country": "Pakistan",
+      "project": "Fauji Fertilizer Complex, Bin Qasim Karachi",
+      "role": "Pipeline Foreman",
+      "start": "1999-09",
+      "end": "2002-08",
+      "type": "project",
+      "duties": "Daily utility-area maintenance and annual shutdown preparation; distributing work fronts to hired manpower."
+    },
+    {
+      "company": "CB&I (Eastern Install)",
+      "client": "TPL",
+      "country": "UAE",
+      "project": "TPL Oil Refinery, Jebel Ali Dubai",
+      "role": "Pipeline Foreman",
+      "start": "1998-08",
+      "end": "1999-04",
+      "type": "project",
+      "duties": "Erection of furnaces and fin-fan coolers; hydro testing of released test packages."
+    }
+  ],
+  "awards": [
+    {
+      "title": "Working Together for Operational Excellence",
+      "issuer": "Shell (Pearl GTL)",
+      "year": 2022,
+      "context": "Major Turnaround 3, Mech/Piping Supervisor",
+      "scan": "/certs/shell-2022.jpg",
+      "logo": "pearl-gtl-shell",
+      "role": "Mech/Piping Supervisor"
+    },
+    {
+      "title": "Certificate of Appreciation",
+      "issuer": "Doosan Babcock WLL / QatarEnergy",
+      "year": 2022,
+      "context": "HSE culture during QatarEnergy Turnaround 2022, Arab D RG Plant, Dukhan",
+      "scan": "/certs/doosan-qe-2022.jpg",
+      "logo": "doosan-babcock-black-cat",
+      "role": "Mech/Piping Supervisor"
+    },
+    {
+      "title": "Certificate of Recognition",
+      "issuer": "Doosan Babcock & Black Cat",
+      "year": 2019,
+      "context": "Carbonyl Piping Replacement Project, QSGTL Turnaround 2019",
+      "scan": "/certs/doosan-2019-carbonyl.jpg",
+      "logo": "doosan-babcock-black-cat",
+      "role": "Piping Supervisor"
+    },
+    {
+      "title": "HSE Award - Appreciation Certificate",
+      "issuer": "Doosan Babcock & Black Cat",
+      "year": 2019,
+      "context": "Qatar Shell LPU 1 & 2 Shutdown, Sep-Nov 2019",
+      "scan": "/certs/doosan-2019-hse.jpg",
+      "logo": "doosan-babcock-black-cat",
+      "role": "Mechanical Supervisor"
+    },
+    {
+      "title": "Certificate of Appreciation",
+      "issuer": "FFBL / Descon",
+      "year": 2018,
+      "context": "Safe execution, FFBL Annual Turnaround 2018",
+      "scan": "/certs/ffbl-2018.jpg",
+      "logo": "fauji-fertilizer-bin-qasim-limited",
+      "role": "Mech. Supervisor"
+    },
+    {
+      "title": "Certificate of Appreciation",
+      "issuer": "UTE Abener Teyma Emirates",
+      "year": 2012,
+      "context": "Shams 1 Solar Thermal Power Plant, Air Cooled Condenser erection",
+      "scan": "/certs/abener-2012.jpg",
+      "logo": "abener",
+      "role": "Erection Supervisor"
+    },
+    {
+      "title": "Incentive Award Winner - Best Supervisor of the Week",
+      "issuer": "Petrofac / ADCO",
+      "year": 2010,
+      "context": "Safe working practices on the ASAB FFD Project",
+      "scan": "/certs/petrofac-2010.jpg",
+      "logo": "petrofac",
+      "role": "Supervisor"
+    },
+    {
+      "title": "Certificate of Excellence",
+      "issuer": "Punj Lloyd",
+      "year": 2009,
+      "context": "Erection of Flare Stack, Borouge 2 Polyolefins Project, Ruwais",
+      "scan": "/certs/punjlloyd-2009.jpg",
+      "logo": "punj-lloyd",
+      "role": "Erection Supervisor"
+    },
+    {
+      "title": "Certificate of Excellence",
+      "issuer": "Contrack / OGASCO",
+      "year": null,
+      "context": "Fabrication, site erection and commissioning, Al Dhafra Air Base fuel line project",
+      "scan": "/certs/contrack.jpg",
+      "logo": "contrack",
+      "role": "Fabrication Supervisor"
+    }
+  ],
+  "training": [
+    "Job performer for ADCO oil fields",
+    "Advanced fire fighting",
+    "Advanced first aider",
+    "Optima training for offshore",
+    "Sea survival for offshore",
+    "Safe rigging course (CB&I)",
+    "Microsoft Office"
+  ],
+  "gallery": [
+    {
+      "src": "/img/site/site-04.webp",
+      "caption": "Project team at the Shams 1 solar thermal plant site",
+      "place": "UAE",
+      "tag": "Team"
+    },
+    {
+      "src": "/img/site/site-05.webp",
+      "caption": "Toolbox talk in the fabrication workshop",
+      "place": "UAE",
+      "tag": "Safety"
+    },
+    {
+      "src": "/img/site/site-03.webp",
+      "caption": "Erection works at height on a steel structure",
+      "place": "UAE",
+      "tag": "Erection"
+    },
+    {
+      "src": "/img/site/site-06.webp",
+      "caption": "Morning safety briefing before the shift",
+      "place": "UAE",
+      "tag": "Safety"
+    },
+    {
+      "src": "/img/site/site-08.webp",
+      "caption": "Mobile crane lift on the plant site",
+      "place": "Site",
+      "tag": "Erection"
+    },
+    {
+      "src": "/img/site/site-10.webp",
+      "caption": "With the site crew during erection",
+      "place": "Site",
+      "tag": "Team"
+    },
+    {
+      "src": "/img/site/site-07.webp",
+      "caption": "Site office planning and reporting",
+      "place": "UAE",
+      "tag": "Planning"
+    },
+    {
+      "src": "/img/site/site-11.webp",
+      "caption": "Turnaround team, Qatar",
+      "place": "Qatar",
+      "tag": "Turnaround"
+    },
+    {
+      "src": "/img/site/site-01.webp",
+      "caption": "PPE on, ready for the shift",
+      "place": "Site",
+      "tag": "Safety"
+    }
+  ]
+}
