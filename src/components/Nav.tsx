@@ -14,6 +14,11 @@ const links = [
   { id: "contact", label: "Contact" },
 ];
 
+const sectionIds = new Set([
+  "home",
+  ...links.map((link) => link.id),
+]);
+
 export function Nav() {
   const [activeSection, setActiveSection] = useState("home");
   const [scrolled, setScrolled] = useState(false);
@@ -21,17 +26,37 @@ export function Nav() {
   const headerRef = useRef<HTMLElement>(null);
   const panelRef = useRef<HTMLElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const navigationSequence = useRef(0);
 
-  const navigateTo = useCallback((id: string): void => {
-    setActiveSection(id);
-    setMenuOpen(false);
+  const getNavHeight = useCallback(
+    (): number => headerRef.current?.getBoundingClientRect().height ?? 64,
+    [],
+  );
 
-    // Allow React to close the panel and restore body scrolling first.
-    requestAnimationFrame(() => {
-      const navHeight = headerRef.current?.getBoundingClientRect().height ?? 64;
-      void SectionNavigator.scrollTo(id, navHeight);
-    });
-  }, []);
+  const navigateTo = useCallback(
+    (id: string, smooth: boolean): void => {
+      if (!sectionIds.has(id)) return;
+
+      navigationSequence.current += 1;
+      const sequence = navigationSequence.current;
+
+      setActiveSection(id);
+      setMenuOpen(false);
+
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          if (sequence !== navigationSequence.current) return;
+
+          if (smooth) {
+            void SectionNavigator.scrollTo(id, getNavHeight());
+          } else {
+            SectionNavigator.alignTarget(id, getNavHeight());
+          }
+        });
+      });
+    },
+    [getNavHeight],
+  );
 
   useEffect(() => {
     const spy = new SectionSpy(setActiveSection);
@@ -49,25 +74,42 @@ export function Nav() {
   }, []);
 
   useEffect(() => {
-    const hash = window.location.hash.slice(1);
-    if (!hash) return;
+    const initialHash = window.location.hash.slice(1);
+    if (!initialHash || !sectionIds.has(initialHash)) return;
 
     let cancelled = false;
+    let pinSequence = 0;
 
-    void SectionNavigator.waitForPageAssets().then(() => {
+    window.history.scrollRestoration = "manual";
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+
+    const alignInitialHash = async (): Promise<void> => {
+      await SectionNavigator.waitForPageAssets();
       if (cancelled) return;
 
-      requestAnimationFrame(() => {
-        if (cancelled) return;
-        const navHeight = headerRef.current?.getBoundingClientRect().height ?? 64;
-        void SectionNavigator.scrollTo(hash, navHeight);
-      });
-    });
+      const sequence = ++pinSequence;
+      await SectionNavigator.pinHashTarget(initialHash, getNavHeight);
+
+      if (cancelled || sequence !== pinSequence) return;
+    };
+
+    void alignInitialHash();
+
+    const handleHashChange = (): void => {
+      const id = window.location.hash.slice(1);
+      if (!sectionIds.has(id)) return;
+
+      pinSequence += 1;
+      navigateTo(id, true);
+    };
+
+    window.addEventListener("hashchange", handleHashChange);
 
     return () => {
       cancelled = true;
+      window.removeEventListener("hashchange", handleHashChange);
     };
-  }, []);
+  }, [getNavHeight, navigateTo]);
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -117,7 +159,12 @@ export function Nav() {
     id: string,
   ): void => {
     event.preventDefault();
-    navigateTo(id);
+
+    if (window.location.hash !== `#${id}`) {
+      window.history.pushState(null, "", `#${id}`);
+    }
+
+    navigateTo(id, true);
   };
 
   const closeMenu = (): void => {
